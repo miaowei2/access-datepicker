@@ -26,7 +26,7 @@ End Type
 '====================================================
 ' 模块名称: Module_YearMonthPicker
 ' 功能描述: Access纯窗体年月选择器 (无需Web控件)
-' 作者: Copilot
+' 作者: edonsoft缪炜
 ' 版本: 1.0
 '
 ' 特点:
