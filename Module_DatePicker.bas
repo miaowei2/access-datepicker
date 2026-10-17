@@ -3,7 +3,7 @@ Attribute VB_Name = "Module_DatePicker"
 Option Compare Database
 Option Explicit
 
-' ============ Win32 API å£°æ˜ (å®šä½æ— è¾¹æ¡†çª—ä½“åˆ°æ–‡æœ¬æ¡†ä¸‹æ–¹) ============
+' ============ Win32 API ÉùÃ÷ (¶¨Î»ÎŞ±ß¿ò´°Ìåµ½ÎÄ±¾¿òÏÂ·½) ============
 #If VBA7 Then
     Private Declare PtrSafe Function apiGetFocus Lib "user32" Alias "GetFocus" () As Long
     Private Declare PtrSafe Function apiMoveWindow Lib "user32" Alias "MoveWindow" (ByVal hwnd As Long, ByVal X As Long, ByVal Y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal bRepaint As Long) As Long
@@ -24,71 +24,71 @@ Private Type RECT
 End Type
 
 '====================================================
-' æ¨¡å—åç§°: Module_DatePicker
-' åŠŸèƒ½æè¿°: Accessçº¯çª—ä½“æ—¥æœŸæ—¶é—´é€‰æ‹©å™¨ (æ— éœ€Webæ§ä»¶)
-' ä½œè€…: edonsoftç¼ªç‚œ
-' ç‰ˆæœ¬: 1.0
+' Ä£¿éÃû³Æ: Module_DatePicker
+' ¹¦ÄÜÃèÊö: Access´¿´°ÌåÈÕÆÚÊ±¼äÑ¡ÔñÆ÷ (ÎŞĞèWeb¿Ø¼ş)
+' ×÷Õß: edonsoftçÑì¿
+' °æ±¾: 1.0
 '
-' ç‰¹ç‚¹:
-'   - çº¯VBA + Accessçª—ä½“å®ç°ï¼Œé›¶å¤–éƒ¨ä¾èµ–
-'   - æ—¥å†ç½‘æ ¼ + æ—¶é—´åˆ—è¡¨ å®Œæ•´æ—¥æœŸæ—¶é—´é€‰æ‹©
-'   - è‡ªåŠ¨åˆ›å»ºçª—ä½“ï¼Œä¸€é”®éƒ¨ç½²
-'   - æ‰€æœ‰äº‹ä»¶é€šè¿‡è¡¨è¾¾å¼ç»‘å®šï¼Œæ— éœ€çª—ä½“ä»£ç æ¨¡å—
+' ÌØµã:
+'   - ´¿VBA + Access´°ÌåÊµÏÖ£¬ÁãÍâ²¿ÒÀÀµ
+'   - ÈÕÀúÍø¸ñ + Ê±¼äÁĞ±í ÍêÕûÈÕÆÚÊ±¼äÑ¡Ôñ
+'   - ×Ô¶¯´´½¨´°Ìå£¬Ò»¼ü²¿Êğ
+'   - ËùÓĞÊÂ¼şÍ¨¹ı±í´ïÊ½°ó¶¨£¬ÎŞĞè´°Ìå´úÂëÄ£¿é
 '
-' ä½¿ç”¨æ–¹æ³•:
-'   1. å¯¼å…¥æœ¬æ¨¡å—åˆ°Accessæ•°æ®åº“
-'   2. åœ¨ç«‹å³çª—å£è¿è¡Œ: CreateDatePickerForm
-'   3. åœ¨ä»£ç ä¸­è°ƒç”¨:
+' Ê¹ÓÃ·½·¨:
+'   1. µ¼Èë±¾Ä£¿éµ½AccessÊı¾İ¿â
+'   2. ÔÚÁ¢¼´´°¿ÚÔËĞĞ: CreateDatePickerForm
+'   3. ÔÚ´úÂëÖĞµ÷ÓÃ:
 '      Dim dt As Variant
-'      dt = ShowDatePicker()        ' æ—¥æœŸ+æ—¶é—´
-'      dt = ShowDatePicker(Now, False) ' ä»…æ—¥æœŸ
+'      dt = ShowDatePicker()        ' ÈÕÆÚ+Ê±¼ä
+'      dt = ShowDatePicker(Now, False) ' ½öÈÕÆÚ
 '====================================================
 
-' ============ æ¨¡å—çº§å˜é‡ ============
-Private m_iYear As Integer          ' å½“å‰æ˜¾ç¤ºå¹´ä»½
-Private m_iMonth As Integer         ' å½“å‰æ˜¾ç¤ºæœˆä»½
-Private m_iDay As Integer           ' å·²é€‰æ‹©çš„æ—¥
-Private m_iHour As Integer          ' å·²é€‰æ‹©çš„æ—¶
-Private m_iMinute As Integer        ' å·²é€‰æ‹©çš„åˆ†
-Private m_bShowTime As Boolean      ' æ˜¯å¦æ˜¾ç¤ºæ—¶é—´é€‰æ‹©å™¨
+' ============ Ä£¿é¼¶±äÁ¿ ============
+Private m_iYear As Integer          ' µ±Ç°ÏÔÊ¾Äê·İ
+Private m_iMonth As Integer         ' µ±Ç°ÏÔÊ¾ÔÂ·İ
+Private m_iDay As Integer           ' ÒÑÑ¡ÔñµÄÈÕ
+Private m_iHour As Integer          ' ÒÑÑ¡ÔñµÄÊ±
+Private m_iMinute As Integer        ' ÒÑÑ¡ÔñµÄ·Ö
+Private m_bShowTime As Boolean      ' ÊÇ·ñÏÔÊ¾Ê±¼äÑ¡ÔñÆ÷
 
-Private m_CellDates(1 To 42) As Date   ' 42ä¸ªæ ¼å­å¯¹åº”çš„æ—¥æœŸ
+Private m_CellDates(1 To 42) As Date   ' 42¸ö¸ñ×Ó¶ÔÓ¦µÄÈÕÆÚ
 
-Private m_dtResult As Variant       ' æœ€ç»ˆè¿”å›å€¼
-Private m_bConfirmed As Boolean     ' ç”¨æˆ·æ˜¯å¦ç¡®è®¤
+Private m_dtResult As Variant       ' ×îÖÕ·µ»ØÖµ
+Private m_bConfirmed As Boolean     ' ÓÃ»§ÊÇ·ñÈ·ÈÏ
 
-Public g_txtDateInput As TextBox    ' è°ƒç”¨æ—¶ä¿å­˜çš„æ–‡æœ¬æ¡†å¼•ç”¨
-Private m_rcInputBox As RECT        ' è°ƒç”¨æ—¶æ–‡æœ¬æ¡†çš„å±å¹•ä½ç½®
-Private m_sCallbackFmt As String    ' å›è°ƒ: æ—¥æœŸæ ¼å¼
-Private m_bIsNonModal As Boolean    ' æ˜¯å¦éæ¨¡æ€ (ä¸‹æ‹‰æ¨¡å¼)
+Public g_txtDateInput As TextBox    ' µ÷ÓÃÊ±±£´æµÄÎÄ±¾¿òÒıÓÃ
+Private m_rcInputBox As RECT        ' µ÷ÓÃÊ±ÎÄ±¾¿òµÄÆÁÄ»Î»ÖÃ
+Private m_sCallbackFmt As String    ' »Øµ÷: ÈÕÆÚ¸ñÊ½
+Private m_bIsNonModal As Boolean    ' ÊÇ·ñ·ÇÄ£Ì¬ (ÏÂÀ­Ä£Ê½)
 
-' ============ é¢œè‰²å¸¸é‡ ============
-Private Const CLR_BLUE As Long = 16024898       ' RGB(66,133,244) ä¸»é¢˜è“
+' ============ ÑÕÉ«³£Á¿ ============
+Private Const CLR_BLUE As Long = 16024898       ' RGB(66,133,244) Ö÷ÌâÀ¶
 Private Const CLR_WHITE As Long = 16777215      ' RGB(255,255,255)
 Private Const CLR_BLACK As Long = 0             ' RGB(0,0,0)
-Private Const CLR_GRAY As Long = 11842740       ' RGB(180,180,180) éå½“å‰æœˆ
-Private Const CLR_DKGRAY As Long = 6579300      ' RGB(100,100,100) æ˜ŸæœŸå¤´
-Private Const CLR_BORDER As Long = 13158600     ' RGB(200,200,200) è¾“å…¥æ¡†è¾¹æ¡†
-Private Const CLR_HOVER As Long = 16576233      ' RGB(233,240,252) é¼ æ ‡æ‚¬åœ
+Private Const CLR_GRAY As Long = 11842740       ' RGB(180,180,180) ·Çµ±Ç°ÔÂ
+Private Const CLR_DKGRAY As Long = 6579300      ' RGB(100,100,100) ĞÇÆÚÍ·
+Private Const CLR_BORDER As Long = 13158600     ' RGB(200,200,200) ÊäÈë¿ò±ß¿ò
+Private Const CLR_HOVER As Long = 16576233      ' RGB(233,240,252) Êó±êĞüÍ£
 
-Private m_iHoverCell As Integer                  ' å½“å‰æ‚¬åœçš„æ—¥æœŸæ ¼å­ç´¢å¼• (0=æ— )
+Private m_iHoverCell As Integer                  ' µ±Ç°ĞüÍ£µÄÈÕÆÚ¸ñ×ÓË÷Òı (0=ÎŞ)
 
-' ============ çª—ä½“å ============
+' ============ ´°ÌåÃû ============
 Private Const FORM_NAME As String = "frmDatePicker"
 
 
 '====================================================
-' â˜… å…¬å…±API: æ˜¾ç¤ºæ—¥æœŸé€‰æ‹©å™¨
+' ¡ï ¹«¹²API: ÏÔÊ¾ÈÕÆÚÑ¡ÔñÆ÷
 '
-' å‚æ•°:
-'   dtDefault  - é»˜è®¤æ—¥æœŸæ—¶é—´ (å¯é€‰, é»˜è®¤=Now)
-'   bShowTime  - æ˜¯å¦æ˜¾ç¤ºæ—¶é—´é€‰æ‹© (å¯é€‰, é»˜è®¤=True)
+' ²ÎÊı:
+'   dtDefault  - Ä¬ÈÏÈÕÆÚÊ±¼ä (¿ÉÑ¡, Ä¬ÈÏ=Now)
+'   bShowTime  - ÊÇ·ñÏÔÊ¾Ê±¼äÑ¡Ôñ (¿ÉÑ¡, Ä¬ÈÏ=True)
 '
-' è¿”å›:
-'   Date   - ç”¨æˆ·é€‰æ‹©çš„æ—¥æœŸ(æ—¶é—´)
-'   Null   - ç”¨æˆ·å–æ¶ˆæˆ–æ¸…é™¤
+' ·µ»Ø:
+'   Date   - ÓÃ»§Ñ¡ÔñµÄÈÕÆÚ(Ê±¼ä)
+'   Null   - ÓÃ»§È¡Ïû»òÇå³ı
 '
-' ç¤ºä¾‹:
+' Ê¾Àı:
 '   Dim dt As Variant
 '   dt = ShowDatePicker()
 '   dt = ShowDatePicker(#2026-2-23#, False)
@@ -96,20 +96,20 @@ Private Const FORM_NAME As String = "frmDatePicker"
 '====================================================
 Public Function ShowDatePicker(Optional ByVal dtDefault As Variant, _
                                Optional ByVal bShowTime As Boolean = True) As Variant
-    ' æ£€æŸ¥çª—ä½“æ˜¯å¦å­˜åœ¨
+    ' ¼ì²é´°ÌåÊÇ·ñ´æÔÚ
     If Not FormExists(FORM_NAME) Then
-        MsgBox "æ—¥æœŸé€‰æ‹©å™¨çª—ä½“ [" & FORM_NAME & "] ä¸å­˜åœ¨ï¼" & vbCrLf & _
-               "è¯·å…ˆåœ¨ç«‹å³çª—å£(Ctrl+G)ä¸­è¿è¡Œ:" & vbCrLf & _
-               "  CreateDatePickerForm", vbExclamation, "æ—¥æœŸé€‰æ‹©å™¨"
+        MsgBox "ÈÕÆÚÑ¡ÔñÆ÷´°Ìå [" & FORM_NAME & "] ²»´æÔÚ£¡" & vbCrLf & _
+               "ÇëÏÈÔÚÁ¢¼´´°¿Ú(Ctrl+G)ÖĞÔËĞĞ:" & vbCrLf & _
+               "  CreateDatePickerForm", vbExclamation, "ÈÕÆÚÑ¡ÔñÆ÷"
         ShowDatePicker = Null
         Exit Function
     End If
     
-    ' åˆå§‹åŒ–è¿”å›çŠ¶æ€
+    ' ³õÊ¼»¯·µ»Ø×´Ì¬
     m_bConfirmed = False
     m_dtResult = Null
     
-    ' æ„å»º OpenArgs å‚æ•°
+    ' ¹¹½¨ OpenArgs ²ÎÊı
     Dim sArgs As String
     If IsMissing(dtDefault) Or IsEmpty(dtDefault) Or IsNull(dtDefault) Then
         sArgs = Format(Now, "yyyy/mm/dd hh:nn:ss")
@@ -123,13 +123,13 @@ Public Function ShowDatePicker(Optional ByVal dtDefault As Variant, _
     End If
     sArgs = sArgs & "|" & IIf(bShowTime, "1", "0")
     
-    ' ä¿å­˜æ–‡æœ¬æ¡†ä½ç½® (å¦‚æœæ˜¯ç”± PickDateFor è°ƒç”¨åˆ™å·²ç»è®¾ç½®)
+    ' ±£´æÎÄ±¾¿òÎ»ÖÃ (Èç¹ûÊÇÓÉ PickDateFor µ÷ÓÃÔòÒÑ¾­ÉèÖÃ)
     m_bIsNonModal = False
     
-    ' ä»¥å¯¹è¯æ¡†æ¨¡å¼æ‰“å¼€ (ä»£ç åœ¨æ­¤é˜»å¡ï¼Œç›´åˆ°çª—ä½“å…³é—­)
+    ' ÒÔ¶Ô»°¿òÄ£Ê½´ò¿ª (´úÂëÔÚ´Ë×èÈû£¬Ö±µ½´°Ìå¹Ø±Õ)
     DoCmd.OpenForm FORM_NAME, acNormal, , , , acDialog, sArgs
     
-    ' çª—ä½“å…³é—­åè¿”å›ç»“æœ
+    ' ´°Ìå¹Ø±Õºó·µ»Ø½á¹û
     If m_bConfirmed Then
         ShowDatePicker = m_dtResult
     Else
@@ -139,18 +139,18 @@ End Function
 
 
 '====================================================
-' â˜… é€šç”¨API: ä¸ºä»»æ„æ§ä»¶å¼¹å‡ºæ—¥æœŸé€‰æ‹©å™¨å¹¶å›å†™ç»“æœ
+' ¡ï Í¨ÓÃAPI: ÎªÈÎÒâ¿Ø¼şµ¯³öÈÕÆÚÑ¡ÔñÆ÷²¢»ØĞ´½á¹û
 '
-' ç”¨æ³•1: åœ¨çª—ä½“ä»£ç ä¸­ (æ¨è)
+' ÓÃ·¨1: ÔÚ´°Ìå´úÂëÖĞ (ÍÆ¼ö)
 '   Private Sub txtDate_Click()
 '       PickDateFor Me.txtDate
 '   End Sub
 '
-' ç”¨æ³•2: ä¼ å…¥ bShowTime å‚æ•°
-'   PickDateFor Me.txtDate, False    ' ä»…æ—¥æœŸ
-'   PickDateFor Me.txtDate, True     ' æ—¥æœŸ+æ—¶é—´
+' ÓÃ·¨2: ´«Èë bShowTime ²ÎÊı
+'   PickDateFor Me.txtDate, False    ' ½öÈÕÆÚ
+'   PickDateFor Me.txtDate, True     ' ÈÕÆÚ+Ê±¼ä
 '
-' ç”¨æ³•3: æ”¯æŒæ—¥æœŸæ ¼å¼åŒ–è¾“å‡ºåˆ°æ–‡æœ¬æ¡†
+' ÓÃ·¨3: Ö§³ÖÈÕÆÚ¸ñÊ½»¯Êä³öµ½ÎÄ±¾¿ò
 '   PickDateFor Me.txtDate, False, "yyyy-mm-dd"
 '====================================================
 Public Sub PickDateFor(ctl As Control, _
@@ -158,32 +158,32 @@ Public Sub PickDateFor(ctl As Control, _
                        Optional ByVal sFormat As String = "")
 On Error GoTo Err_PickDateFor
     
-    ' æ£€æŸ¥çª—ä½“æ˜¯å¦å­˜åœ¨
+    ' ¼ì²é´°ÌåÊÇ·ñ´æÔÚ
     If Not FormExists(FORM_NAME) Then
-        MsgBox "æ—¥æœŸé€‰æ‹©å™¨çª—ä½“ [" & FORM_NAME & "] ä¸å­˜åœ¨ï¼" & vbCrLf & _
-               "è¯·å…ˆåœ¨ç«‹å³çª—å£(Ctrl+G)ä¸­è¿è¡Œ:" & vbCrLf & _
-               "  CreateDatePickerForm", vbExclamation, "æ—¥æœŸé€‰æ‹©å™¨"
+        MsgBox "ÈÕÆÚÑ¡ÔñÆ÷´°Ìå [" & FORM_NAME & "] ²»´æÔÚ£¡" & vbCrLf & _
+               "ÇëÏÈÔÚÁ¢¼´´°¿Ú(Ctrl+G)ÖĞÔËĞĞ:" & vbCrLf & _
+               "  CreateDatePickerForm", vbExclamation, "ÈÕÆÚÑ¡ÔñÆ÷"
         Exit Sub
     End If
     
-    ' å¦‚æœæ—¥æœŸé€‰æ‹©å™¨å·²æ‰“å¼€ï¼Œå…ˆå…³é—­
+    ' Èç¹ûÈÕÆÚÑ¡ÔñÆ÷ÒÑ´ò¿ª£¬ÏÈ¹Ø±Õ
     If IsFormOpen(FORM_NAME) Then
         DoCmd.Close acForm, FORM_NAME
     End If
     
-    ' ä¿å­˜æ–‡æœ¬æ¡†å¼•ç”¨ (å‚ç…§ modCalendar çš„ g_txtDateInput æ–¹æ³•)
+    ' ±£´æÎÄ±¾¿òÒıÓÃ (²ÎÕÕ modCalendar µÄ g_txtDateInput ·½·¨)
     Set g_txtDateInput = ctl
     m_sCallbackFmt = sFormat
     m_bIsNonModal = True
     m_bConfirmed = False
     m_dtResult = Null
     
-    ' â˜… å…³é”®: å…ˆ SetFocus ç»™æ–‡æœ¬æ¡†ï¼Œç„¶åç”¨ apiGetFocus è·å–å…¶çª—å£å¥æŸ„
-    ' å†ç”¨ GetWindowRect è·å–æ–‡æœ¬æ¡†åœ¨å±å¹•ä¸Šçš„ç²¾ç¡®ä½ç½®
+    ' ¡ï ¹Ø¼ü: ÏÈ SetFocus ¸øÎÄ±¾¿ò£¬È»ºóÓÃ apiGetFocus »ñÈ¡Æä´°¿Ú¾ä±ú
+    ' ÔÙÓÃ GetWindowRect »ñÈ¡ÎÄ±¾¿òÔÚÆÁÄ»ÉÏµÄ¾«È·Î»ÖÃ
     ctl.SetFocus
     apiGetWindowRect apiGetFocus(), m_rcInputBox
     
-    ' æ„å»º OpenArgs
+    ' ¹¹½¨ OpenArgs
     Dim dtDefault As Variant
     dtDefault = Null
     On Error Resume Next
@@ -201,10 +201,10 @@ On Error GoTo Err_PickDateFor
     End If
     sArgs = sArgs & "|" & IIf(bShowTime, "1", "0")
     
-    ' ä»¥éæ¨¡æ€æ‰“å¼€ (ä¸‹æ‹‰æ¨¡å¼)
+    ' ÒÔ·ÇÄ£Ì¬´ò¿ª (ÏÂÀ­Ä£Ê½)
     DoCmd.OpenForm FORM_NAME, acNormal, , , , , sArgs
     
-    ' â˜… æ‰“å¼€åç«‹å³å®šä½ (ä¸ modCalendar.CalendarFor ä¸€è‡´)
+    ' ¡ï ´ò¿ªºóÁ¢¼´¶¨Î» (Óë modCalendar.CalendarFor Ò»ÖÂ)
     Dim typRect_Calendar As RECT, typRect_Desktop As RECT
     Dim lngHwnd As Long
     Dim intLeft As Integer, intTop As Integer
@@ -217,7 +217,7 @@ On Error GoTo Err_PickDateFor
     intWidth = typRect_Calendar.Right - typRect_Calendar.Left
     intHeight = typRect_Calendar.Bottom - typRect_Calendar.Top
     
-    ' å·¦å¯¹é½æ–‡æœ¬æ¡†å·¦è¾¹ç¼˜ (-1 è¡¥å¿ Access æ— è¾¹æ¡†çª—ä½“å®¢æˆ·åŒºå†…è¾¹è·)
+    ' ×ó¶ÔÆëÎÄ±¾¿ò×ó±ßÔµ (-1 ²¹³¥ Access ÎŞ±ß¿ò´°Ìå¿Í»§ÇøÄÚ±ß¾à)
     intLeft = m_rcInputBox.Left - 1
     If intLeft < 0 Then
         intLeft = 0
@@ -225,7 +225,7 @@ On Error GoTo Err_PickDateFor
         intLeft = typRect_Desktop.Right - intWidth
     End If
     
-    ' ç´§è´´æ–‡æœ¬æ¡†æ­£ä¸‹æ–¹
+    ' ½ôÌùÎÄ±¾¿òÕıÏÂ·½
     intTop = m_rcInputBox.Bottom
     If intTop < 0 Then
         intTop = 0
@@ -239,19 +239,19 @@ Exit_PickDateFor:
     Exit Sub
 
 Err_PickDateFor:
-    MsgBox Err.Description, vbCritical, "æ—¥æœŸé€‰æ‹©å™¨"
+    MsgBox Err.Description, vbCritical, "ÈÕÆÚÑ¡ÔñÆ÷"
     Resume Exit_PickDateFor
 End Sub
 
 
 '====================================================
-' â˜… é€šç”¨API: é€šè¿‡çª—ä½“å+æ§ä»¶åå¼¹å‡ºæ—¥æœŸé€‰æ‹©å™¨ (æ”¯æŒäº‹ä»¶è¡¨è¾¾å¼)
+' ¡ï Í¨ÓÃAPI: Í¨¹ı´°ÌåÃû+¿Ø¼şÃûµ¯³öÈÕÆÚÑ¡ÔñÆ÷ (Ö§³ÖÊÂ¼ş±í´ïÊ½)
 '
-' åœ¨æ§ä»¶å±æ€§çš„"å•å‡»"äº‹ä»¶ä¸­ç›´æ¥å¡«å†™è¡¨è¾¾å¼:
+' ÔÚ¿Ø¼şÊôĞÔµÄ"µ¥»÷"ÊÂ¼şÖĞÖ±½ÓÌîĞ´±í´ïÊ½:
 '   =PickDateForCtl("frmOrder","txtOrderDate",True)
 '   =PickDateForCtl("frmOrder","txtBirthday",False)
 '
-' è¿™æ ·æ— éœ€ç¼–å†™ä»»ä½•çª—ä½“ä»£ç ï¼
+' ÕâÑùÎŞĞè±àĞ´ÈÎºÎ´°Ìå´úÂë£¡
 '====================================================
 Public Function PickDateForCtl(ByVal sFormName As String, _
                                ByVal sCtlName As String, _
@@ -271,19 +271,19 @@ Public Function PickDateForCtl(ByVal sFormName As String, _
     Exit Function
 
 ErrHandler:
-    MsgBox "PickDateForCtl é”™è¯¯: " & Err.Description, vbExclamation, "æ—¥æœŸé€‰æ‹©å™¨"
+    MsgBox "PickDateForCtl ´íÎó: " & Err.Description, vbExclamation, "ÈÕÆÚÑ¡ÔñÆ÷"
     PickDateForCtl = False
 End Function
 
 
 '====================================================
-' â˜… é€šç”¨API: ä¸€é”®ä¸ºæ–‡æœ¬æ¡†ç»‘å®šæ—¥æœŸé€‰æ‹©å™¨
+' ¡ï Í¨ÓÃAPI: Ò»¼üÎªÎÄ±¾¿ò°ó¶¨ÈÕÆÚÑ¡ÔñÆ÷
 '
-' åœ¨çª—ä½“çš„ Form_Load ä¸­è°ƒç”¨:
-'   AttachDatePicker Me, "txtDate"            ' æ—¥æœŸ+æ—¶é—´
-'   AttachDatePicker Me, "txtBirthday", False ' ä»…æ—¥æœŸ
+' ÔÚ´°ÌåµÄ Form_Load ÖĞµ÷ÓÃ:
+'   AttachDatePicker Me, "txtDate"            ' ÈÕÆÚ+Ê±¼ä
+'   AttachDatePicker Me, "txtBirthday", False ' ½öÈÕÆÚ
 '
-' æ•ˆæœ: å•å‡»æˆ–è·å¾—ç„¦ç‚¹æ—¶è‡ªåŠ¨å¼¹å‡ºæ—¥æœŸé€‰æ‹©å™¨
+' Ğ§¹û: µ¥»÷»ò»ñµÃ½¹µãÊ±×Ô¶¯µ¯³öÈÕÆÚÑ¡ÔñÆ÷
 '====================================================
 Public Sub AttachDatePicker(frm As Form, _
                             ByVal sCtlName As String, _
@@ -293,35 +293,35 @@ Public Sub AttachDatePicker(frm As Form, _
     Dim ctl As Control
     Set ctl = frm.Controls(sCtlName)
     
-    ' ç”¨è¡¨è¾¾å¼ç»‘å®š OnDblClick äº‹ä»¶
+    ' ÓÃ±í´ïÊ½°ó¶¨ OnDblClick ÊÂ¼ş
     Dim sExpr As String
     sExpr = "=PickDateForCtl(""" & frm.Name & """,""" & sCtlName & """," & _
             IIf(bShowTime, "True", "False") & ")"
     
     ctl.OnDblClick = sExpr
     
-    ' æŠŠæ–‡æœ¬æ¡†è®¾ä¸ºåªè¯»ï¼Œä½¿äº¤äº’æ›´å‹å¥½
+    ' °ÑÎÄ±¾¿òÉèÎªÖ»¶Á£¬Ê¹½»»¥¸üÓÑºÃ
     If TypeOf ctl Is TextBox Then
-        ctl.Locked = False   ' ä¿æŒå¯ç¼–è¾‘ï¼ˆç”¨æˆ·ä¹Ÿå¯ä»¥ç›´æ¥è¾“å…¥ï¼‰
+        ctl.Locked = False   ' ±£³Ö¿É±à¼­£¨ÓÃ»§Ò²¿ÉÒÔÖ±½ÓÊäÈë£©
     End If
     
     Exit Sub
 
 ErrHandler:
-    Debug.Print "AttachDatePicker é”™è¯¯ [" & sCtlName & "]: " & Err.Description
+    Debug.Print "AttachDatePicker ´íÎó [" & sCtlName & "]: " & Err.Description
 End Sub
 
 
 '====================================================
-' â˜… é€šç”¨API: è‡ªåŠ¨æ‰«æçª—ä½“ä¸Šæ‰€æœ‰æ—¥æœŸå‹æ–‡æœ¬æ¡†å¹¶ç»‘å®š
+' ¡ï Í¨ÓÃAPI: ×Ô¶¯É¨Ãè´°ÌåÉÏËùÓĞÈÕÆÚĞÍÎÄ±¾¿ò²¢°ó¶¨
 '
-' åœ¨çª—ä½“çš„ Form_Load ä¸­è°ƒç”¨:
+' ÔÚ´°ÌåµÄ Form_Load ÖĞµ÷ÓÃ:
 '   AttachDatePickerAll Me
 '
-' è‡ªåŠ¨æ£€æµ‹å­—æ®µç±»å‹ä¸ºæ—¥æœŸçš„æ–‡æœ¬æ¡†å¹¶ç»‘å®šæ—¥æœŸé€‰æ‹©å™¨
-' ä¹Ÿå¯ä¼ å…¥æ§ä»¶åå‰ç¼€æ¥åŒ¹é…:
-'   AttachDatePickerAll Me, "dt"     ' åŒ¹é… dt å¼€å¤´çš„æ–‡æœ¬æ¡†
-'   AttachDatePickerAll Me, "date"   ' åŒ¹é… date å¼€å¤´çš„æ–‡æœ¬æ¡†
+' ×Ô¶¯¼ì²â×Ö¶ÎÀàĞÍÎªÈÕÆÚµÄÎÄ±¾¿ò²¢°ó¶¨ÈÕÆÚÑ¡ÔñÆ÷
+' Ò²¿É´«Èë¿Ø¼şÃûÇ°×ºÀ´Æ¥Åä:
+'   AttachDatePickerAll Me, "dt"     ' Æ¥Åä dt ¿ªÍ·µÄÎÄ±¾¿ò
+'   AttachDatePickerAll Me, "date"   ' Æ¥Åä date ¿ªÍ·µÄÎÄ±¾¿ò
 '====================================================
 Public Sub AttachDatePickerAll(frm As Form, _
                                Optional ByVal sPrefix As String = "", _
@@ -332,29 +332,29 @@ Public Sub AttachDatePickerAll(frm As Form, _
     Dim bMatch As Boolean
     
     For Each ctl In frm.Controls
-        ' åªå¤„ç†æ–‡æœ¬æ¡†
+        ' Ö»´¦ÀíÎÄ±¾¿ò
         If TypeOf ctl Is TextBox Then
             bMatch = False
             
-            ' æ–¹å¼1: æŒ‰å‰ç¼€åŒ¹é…
+            ' ·½Ê½1: °´Ç°×ºÆ¥Åä
             If sPrefix <> "" Then
                 If LCase(Left(ctl.Name, Len(sPrefix))) = LCase(sPrefix) Then
                     bMatch = True
                 End If
             Else
-                ' æ–¹å¼2: è‡ªåŠ¨æ£€æµ‹ ControlSource å¯¹åº”å­—æ®µæ˜¯å¦ä¸ºæ—¥æœŸå‹
-                ' æ£€æŸ¥æ§ä»¶åæ˜¯å¦åŒ…å«å¸¸è§æ—¥æœŸå…³é”®è¯
+                ' ·½Ê½2: ×Ô¶¯¼ì²â ControlSource ¶ÔÓ¦×Ö¶ÎÊÇ·ñÎªÈÕÆÚĞÍ
+                ' ¼ì²é¿Ø¼şÃûÊÇ·ñ°üº¬³£¼ûÈÕÆÚ¹Ø¼ü´Ê
                 Dim sName As String
                 sName = LCase(ctl.Name)
                 If InStr(sName, "date") > 0 Or _
-                   InStr(sName, "æ—¥æœŸ") > 0 Or _
+                   InStr(sName, "ÈÕÆÚ") > 0 Or _
                    InStr(sName, "time") > 0 Or _
-                   InStr(sName, "æ—¶é—´") > 0 Or _
+                   InStr(sName, "Ê±¼ä") > 0 Or _
                    InStr(sName, "dt") > 0 Then
                     bMatch = True
                 End If
                 
-                ' ä¹Ÿæ£€æŸ¥æ§ä»¶ Format å±æ€§
+                ' Ò²¼ì²é¿Ø¼ş Format ÊôĞÔ
                 If Not bMatch Then
                     Dim sFmt As String
                     sFmt = ""
@@ -383,7 +383,7 @@ End Sub
 
 
 '====================================================
-' å†…éƒ¨: è®¾ç½®è¿”å›ç»“æœ (ç”±äº‹ä»¶å¤„ç†å™¨è°ƒç”¨)
+' ÄÚ²¿: ÉèÖÃ·µ»Ø½á¹û (ÓÉÊÂ¼ş´¦ÀíÆ÷µ÷ÓÃ)
 '====================================================
 Public Sub DatePicker_SetResult(ByVal vResult As Variant, ByVal bConfirmed As Boolean)
     m_dtResult = vResult
@@ -391,18 +391,18 @@ Public Sub DatePicker_SetResult(ByVal vResult As Variant, ByVal bConfirmed As Bo
 End Sub
 
 
-' â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-' â•‘     äº‹ä»¶å¤„ç†å‡½æ•° (ç”±çª—ä½“æ§ä»¶è¡¨è¾¾å¼è°ƒç”¨)        â•‘
-' â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+' ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[
+' ¨U     ÊÂ¼ş´¦Àíº¯Êı (ÓÉ´°Ìå¿Ø¼ş±í´ïÊ½µ÷ÓÃ)        ¨U
+' ¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a
 
-'---------- çª—ä½“åŠ è½½ ----------
+'---------- ´°Ìå¼ÓÔØ ----------
 Public Function DatePicker_FormLoad() As Variant
     On Error GoTo ErrHandler
     
     Dim frm As Form
     Set frm = Forms(FORM_NAME)
     
-    ' è§£æ OpenArgs
+    ' ½âÎö OpenArgs
     Dim sArgs As String
     sArgs = Nz(frm.OpenArgs, "")
     
@@ -432,23 +432,24 @@ Public Function DatePicker_FormLoad() As Variant
     m_iHour = Hour(dt)
     m_iMinute = Minute(dt)
     
-    ' æ—¶é—´æ§ä»¶æ˜¾ç¤º/éšè—
+    ' Ê±¼ä¿Ø¼şÏÔÊ¾/Òş²Ø
     frm.Controls("lstHour").Visible = m_bShowTime
     frm.Controls("lstMin").Visible = m_bShowTime
     frm.Controls("lblHour").Visible = m_bShowTime
     frm.Controls("lblMin").Visible = m_bShowTime
     
-    ' â˜… æ— æ—¶é—´æ¨¡å¼: ç¼©çª„çª—ä½“å®½åº¦ (ä»…æ˜¾ç¤º7åˆ—æ—¥å†åŒºåŸŸ+ä¸¤ä¾§45ç¼‡è¾¹è·)
+    ' ¡ï ÎŞÊ±¼äÄ£Ê½: ËõÕ­´°Ìå¿í¶È (½öÏÔÊ¾7ÁĞÈÕÀúÇøÓò+Á½²à45ç¾±ß¾à)
     If Not m_bShowTime Then
         Dim lngNarrowW As Long
-        lngNarrowW = 7 * 480 + 45 * 2   ' 7åˆ— Ã— 480ç¼‡ + 90ç¼‡è¾¹è· = 3450
-        frm.Width = lngNarrowW
+        lngNarrowW = 7 * 480 + 45 * 2   ' 7ÁĞ ¡Á 480ç¾ + 90ç¾±ß¾à = 3450
         frm.Controls("rctBorder").Width = lngNarrowW - 50
         frm.Controls("txtDisplay").Width = lngNarrowW - 180
+        frm.Width = lngNarrowW
+        frm.InsideWidth = lngNarrowW
     End If
     
     If m_bShowTime Then
-        ' å¡«å……å°æ—¶åˆ—è¡¨ 00-23
+        ' Ìî³äĞ¡Ê±ÁĞ±í 00-23
         Dim SH As String
         Dim i As Integer
         For i = 0 To 23
@@ -456,7 +457,7 @@ Public Function DatePicker_FormLoad() As Variant
             SH = SH & Format(i, "00")
         Next i
         
-        ' å¡«å……åˆ†é’Ÿåˆ—è¡¨ 00-59
+        ' Ìî³ä·ÖÖÓÁĞ±í 00-59
         Dim sM As String
         For i = 0 To 59
             If i > 0 Then sM = sM & ";"
@@ -479,10 +480,10 @@ Public Function DatePicker_FormLoad() As Variant
         frm.Controls("lblMin").Caption = Format(m_iMinute, "00")
     End If
     
-    ' é‡ç½®æ‚¬åœçŠ¶æ€
+    ' ÖØÖÃĞüÍ£×´Ì¬
     m_iHoverCell = 0
     
-    ' åˆ·æ–°æ—¥å† & æ˜¾ç¤º
+    ' Ë¢ĞÂÈÕÀú & ÏÔÊ¾
     DatePicker_RefreshCalendar
     DatePicker_UpdateDisplay
     
@@ -490,12 +491,12 @@ Public Function DatePicker_FormLoad() As Variant
     Exit Function
 
 ErrHandler:
-    MsgBox "æ—¥æœŸé€‰æ‹©å™¨åˆå§‹åŒ–å¤±è´¥: " & Err.Description, vbExclamation, "é”™è¯¯"
+    MsgBox "ÈÕÆÚÑ¡ÔñÆ÷³õÊ¼»¯Ê§°Ü: " & Err.Description, vbExclamation, "´íÎó"
     DatePicker_FormLoad = False
 End Function
 
 
-'---------- æ—¥æœŸæ ¼å­ å•å‡» ----------
+'---------- ÈÕÆÚ¸ñ×Ó µ¥»÷ ----------
 Public Function DatePicker_DayClick(ByVal iCell As Integer) As Variant
     On Error Resume Next
     
@@ -513,7 +514,7 @@ Public Function DatePicker_DayClick(ByVal iCell As Integer) As Variant
     DatePicker_RefreshCalendar
     DatePicker_UpdateDisplay
     
-    ' éæ¨¡æ€æ¨¡å¼: å•å‡»æ—¥æœŸå³ç¡®è®¤ (ç¡®å®š/å–æ¶ˆæŒ‰é’®å·²ç§»é™¤)
+    ' ·ÇÄ£Ì¬Ä£Ê½: µ¥»÷ÈÕÆÚ¼´È·ÈÏ (È·¶¨/È¡Ïû°´Å¥ÒÑÒÆ³ı)
     If m_bIsNonModal Then
         DatePicker_ConfirmAndClose
     End If
@@ -522,7 +523,7 @@ Public Function DatePicker_DayClick(ByVal iCell As Integer) As Variant
 End Function
 
 
-'---------- æ—¥æœŸæ ¼å­ é¼ æ ‡æ‚¬åœ ----------
+'---------- ÈÕÆÚ¸ñ×Ó Êó±êĞüÍ£ ----------
 Public Function DatePicker_DayMouseMove(ByVal iCell As Integer) As Variant
     On Error Resume Next
     
@@ -531,7 +532,7 @@ Public Function DatePicker_DayMouseMove(ByVal iCell As Integer) As Variant
         Exit Function
     End If
     
-    ' ä¸ä¸Šæ¬¡ç›¸åŒåˆ™å¿½ç•¥
+    ' ÓëÉÏ´ÎÏàÍ¬ÔòºöÂÔ
     If iCell = m_iHoverCell Then
         DatePicker_DayMouseMove = True
         Exit Function
@@ -541,7 +542,7 @@ Public Function DatePicker_DayMouseMove(ByVal iCell As Integer) As Variant
     Set frm = Forms(FORM_NAME)
     Dim ctl As Control
     
-    ' --- æ¢å¤ä¸Šä¸€ä¸ªæ‚¬åœæ ¼å­çš„åŸå§‹æ ·å¼ ---
+    ' --- »Ö¸´ÉÏÒ»¸öĞüÍ£¸ñ×ÓµÄÔ­Ê¼ÑùÊ½ ---
     If m_iHoverCell >= 1 And m_iHoverCell <= 42 Then
         Set ctl = frm.Controls("lblD" & Format(m_iHoverCell, "00"))
         Dim dtOld As Date
@@ -549,7 +550,7 @@ Public Function DatePicker_DayMouseMove(ByVal iCell As Integer) As Variant
         Dim dtSel As Date
         dtSel = DateSerial(m_iYear, m_iMonth, m_iDay)
         
-        ' é‡ç½®ä¸ºé»˜è®¤
+        ' ÖØÖÃÎªÄ¬ÈÏ
         ctl.BackColor = CLR_WHITE
         ctl.ForeColor = CLR_BLACK
         ctl.FontWeight = 400
@@ -568,7 +569,7 @@ Public Function DatePicker_DayMouseMove(ByVal iCell As Integer) As Variant
         End If
     End If
     
-    ' --- è®¾ç½®æ–°æ‚¬åœæ ¼å­çš„é«˜äº®æ ·å¼ ---
+    ' --- ÉèÖÃĞÂĞüÍ£¸ñ×ÓµÄ¸ßÁÁÑùÊ½ ---
     m_iHoverCell = iCell
     Set ctl = frm.Controls("lblD" & Format(iCell, "00"))
     Dim dtNew As Date
@@ -576,7 +577,7 @@ Public Function DatePicker_DayMouseMove(ByVal iCell As Integer) As Variant
     Dim dtSelected As Date
     dtSelected = DateSerial(m_iYear, m_iMonth, m_iDay)
     
-    ' ä»…åœ¨éé€‰ä¸­çŠ¶æ€ä¸‹æ˜¾ç¤ºæ‚¬åœè‰²
+    ' ½öÔÚ·ÇÑ¡ÖĞ×´Ì¬ÏÂÏÔÊ¾ĞüÍ£É«
     If dtNew <> dtSelected Then
         ctl.BackColor = CLR_HOVER
         If Month(dtNew) <> m_iMonth Then
@@ -594,7 +595,7 @@ Public Function DatePicker_DayMouseMove(ByVal iCell As Integer) As Variant
 End Function
 
 
-'---------- æ—¥æœŸæ ¼å­ åŒå‡» (é€‰ä¸­å¹¶ç¡®è®¤) ----------
+'---------- ÈÕÆÚ¸ñ×Ó Ë«»÷ (Ñ¡ÖĞ²¢È·ÈÏ) ----------
 Public Function DatePicker_DayDblClick(ByVal iCell As Integer) As Variant
     DatePicker_DayClick iCell
     DatePicker_ConfirmAndClose
@@ -602,7 +603,7 @@ Public Function DatePicker_DayDblClick(ByVal iCell As Integer) As Variant
 End Function
 
 
-'---------- ä¸Šä¸ªæœˆ ----------
+'---------- ÉÏ¸öÔÂ ----------
 Public Function DatePicker_PrevMonth() As Variant
     m_iMonth = m_iMonth - 1
     If m_iMonth < 1 Then
@@ -615,7 +616,7 @@ Public Function DatePicker_PrevMonth() As Variant
 End Function
 
 
-'---------- ä¸‹ä¸ªæœˆ ----------
+'---------- ÏÂ¸öÔÂ ----------
 Public Function DatePicker_NextMonth() As Variant
     m_iMonth = m_iMonth + 1
     If m_iMonth > 12 Then
@@ -628,7 +629,7 @@ Public Function DatePicker_NextMonth() As Variant
 End Function
 
 
-'---------- ä¸Šä¸€å¹´ ----------
+'---------- ÉÏÒ»Äê ----------
 Public Function DatePicker_PrevYear() As Variant
     m_iYear = m_iYear - 1
     DatePicker_RefreshCalendar
@@ -637,7 +638,7 @@ Public Function DatePicker_PrevYear() As Variant
 End Function
 
 
-'---------- ä¸‹ä¸€å¹´ ----------
+'---------- ÏÂÒ»Äê ----------
 Public Function DatePicker_NextYear() As Variant
     m_iYear = m_iYear + 1
     DatePicker_RefreshCalendar
@@ -646,7 +647,7 @@ Public Function DatePicker_NextYear() As Variant
 End Function
 
 
-'---------- å°æ—¶åˆ—è¡¨ ç‚¹å‡» ----------
+'---------- Ğ¡Ê±ÁĞ±í µã»÷ ----------
 Public Function DatePicker_HourClick() As Variant
     On Error Resume Next
     Dim frm As Form
@@ -662,7 +663,7 @@ Public Function DatePicker_HourClick() As Variant
 End Function
 
 
-'---------- åˆ†é’Ÿåˆ—è¡¨ ç‚¹å‡» ----------
+'---------- ·ÖÖÓÁĞ±í µã»÷ ----------
 Public Function DatePicker_MinClick() As Variant
     On Error Resume Next
     Dim frm As Form
@@ -678,7 +679,7 @@ Public Function DatePicker_MinClick() As Variant
 End Function
 
 
-'---------- æ¸…é™¤ ----------
+'---------- Çå³ı ----------
 Public Function DatePicker_Clear() As Variant
     DatePicker_SetResult Null, True
     DatePicker_WriteBack Null
@@ -687,7 +688,7 @@ Public Function DatePicker_Clear() As Variant
 End Function
 
 
-'---------- ä»Šå¤© ----------
+'---------- ½ñÌì ----------
 Public Function DatePicker_GoToday() As Variant
     On Error Resume Next
     
@@ -713,14 +714,14 @@ Public Function DatePicker_GoToday() As Variant
 End Function
 
 
-'---------- ç¡®å®š ----------
+'---------- È·¶¨ ----------
 Public Function DatePicker_OK() As Variant
     DatePicker_ConfirmAndClose
     DatePicker_OK = True
 End Function
 
 
-'---------- å–æ¶ˆ ----------
+'---------- È¡Ïû ----------
 Public Function DatePicker_Cancel() As Variant
     Set g_txtDateInput = Nothing
     DatePicker_SetResult Null, False
@@ -729,12 +730,12 @@ Public Function DatePicker_Cancel() As Variant
 End Function
 
 
-' â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-' â•‘              å†…éƒ¨è¾…åŠ©å‡½æ•°                      â•‘
-' â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+' ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[
+' ¨U              ÄÚ²¿¸¨Öúº¯Êı                      ¨U
+' ¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a
 
 '----------------------------------------------------
-' ç¡®è®¤é€‰æ‹©å¹¶å…³é—­çª—ä½“
+' È·ÈÏÑ¡Ôñ²¢¹Ø±Õ´°Ìå
 '----------------------------------------------------
 Private Sub DatePicker_ConfirmAndClose()
     Dim dt As Variant
@@ -752,7 +753,7 @@ End Sub
 
 
 '----------------------------------------------------
-' åˆ·æ–°æ—¥å†ç½‘æ ¼æ˜¾ç¤º
+' Ë¢ĞÂÈÕÀúÍø¸ñÏÔÊ¾
 '----------------------------------------------------
 Private Sub DatePicker_RefreshCalendar()
     On Error Resume Next
@@ -760,22 +761,22 @@ Private Sub DatePicker_RefreshCalendar()
     Dim frm As Form
     Set frm = Forms(FORM_NAME)
     
-    ' ç¦æ­¢é‡ç»˜ (æå‡æ€§èƒ½)
+    ' ½ûÖ¹ÖØ»æ (ÌáÉıĞÔÄÜ)
     frm.Painting = False
     
-    ' æœ¬æœˆç¬¬ä¸€å¤©
+    ' ±¾ÔÂµÚÒ»Ìì
     Dim dtFirst As Date
     dtFirst = DateSerial(m_iYear, m_iMonth, 1)
     
-    ' ç¬¬ä¸€å¤©æ˜¯æ˜ŸæœŸå‡  (1=å‘¨ä¸€ ... 7=å‘¨æ—¥)
+    ' µÚÒ»ÌìÊÇĞÇÆÚ¼¸ (1=ÖÜÒ» ... 7=ÖÜÈÕ)
     Dim iFirstDow As Integer
     iFirstDow = Weekday(dtFirst, vbMonday)
     
-    ' ç½‘æ ¼èµ·å§‹æ—¥æœŸ (å¯èƒ½æ˜¯ä¸Šæœˆçš„æŸå¤©)
+    ' Íø¸ñÆğÊ¼ÈÕÆÚ (¿ÉÄÜÊÇÉÏÔÂµÄÄ³Ìì)
     Dim dtStart As Date
     dtStart = dtFirst - iFirstDow + 1
     
-    ' ç¡®ä¿é€‰æ‹©æ—¥åœ¨æœ‰æ•ˆèŒƒå›´å†…
+    ' È·±£Ñ¡ÔñÈÕÔÚÓĞĞ§·¶Î§ÄÚ
     Dim iMaxDay As Integer
     iMaxDay = Day(DateSerial(m_iYear, m_iMonth + 1, 0))
     If m_iDay > iMaxDay Then m_iDay = iMaxDay
@@ -783,10 +784,10 @@ Private Sub DatePicker_RefreshCalendar()
     Dim dtSelected As Date
     dtSelected = DateSerial(m_iYear, m_iMonth, m_iDay)
     
-    ' æ›´æ–°æœˆä»½å¹´ä»½æ ‡ç­¾
-    frm.Controls("lblMonthYear").Caption = m_iYear & "å¹´" & Format(m_iMonth, "00") & "æœˆ"
+    ' ¸üĞÂÔÂ·İÄê·İ±êÇ©
+    frm.Controls("lblMonthYear").Caption = m_iYear & "Äê" & Format(m_iMonth, "00") & "ÔÂ"
     
-    ' å¡«å……42ä¸ªæ—¥æœŸæ ¼å­
+    ' Ìî³ä42¸öÈÕÆÚ¸ñ×Ó
     Dim i As Integer
     Dim ctl As Control
     Dim dtCell As Date
@@ -798,29 +799,29 @@ Private Sub DatePicker_RefreshCalendar()
         Set ctl = frm.Controls("lblD" & Format(i, "00"))
         ctl.Caption = CStr(Day(dtCell))
         
-        ' === é‡ç½®æ ·å¼ ===
+        ' === ÖØÖÃÑùÊ½ ===
         ctl.BackColor = CLR_WHITE
         ctl.ForeColor = CLR_BLACK
-        ctl.BorderStyle = 0             ' æ— è¾¹æ¡†
-        ctl.FontWeight = 400            ' æ­£å¸¸ç²—ç»†
+        ctl.BorderStyle = 0             ' ÎŞ±ß¿ò
+        ctl.FontWeight = 400            ' Õı³£´ÖÏ¸
         
-        ' --- éå½“å‰æœˆ: ç°è‰²æ–‡å­— ---
+        ' --- ·Çµ±Ç°ÔÂ: »ÒÉ«ÎÄ×Ö ---
         If Month(dtCell) <> m_iMonth Then
             ctl.ForeColor = CLR_GRAY
         End If
         
-        ' --- ä»Šå¤©: è“è‰²è¾¹æ¡† ---
+        ' --- ½ñÌì: À¶É«±ß¿ò ---
         If dtCell = Date Then
-            ctl.BorderStyle = 1         ' å®çº¿è¾¹æ¡†
+            ctl.BorderStyle = 1         ' ÊµÏß±ß¿ò
             ctl.BorderColor = CLR_BLUE
             ctl.BorderWidth = 2
             If dtCell <> dtSelected Then
                 ctl.ForeColor = CLR_BLUE
-                ctl.FontWeight = 700    ' åŠ ç²—
+                ctl.FontWeight = 700    ' ¼Ó´Ö
             End If
         End If
         
-        ' --- å·²é€‰ä¸­: è“è‰²èƒŒæ™¯ç™½å­— ---
+        ' --- ÒÑÑ¡ÖĞ: À¶É«±³¾°°××Ö ---
         If dtCell = dtSelected Then
             ctl.BackColor = CLR_BLUE
             ctl.ForeColor = CLR_WHITE
@@ -828,13 +829,13 @@ Private Sub DatePicker_RefreshCalendar()
         End If
     Next i
     
-    ' æ¢å¤é‡ç»˜
+    ' »Ö¸´ÖØ»æ
     frm.Painting = True
 End Sub
 
 
 '----------------------------------------------------
-' æ›´æ–°é¡¶éƒ¨æ—¥æœŸæ—¶é—´æ˜¾ç¤º
+' ¸üĞÂ¶¥²¿ÈÕÆÚÊ±¼äÏÔÊ¾
 '----------------------------------------------------
 Private Sub DatePicker_UpdateDisplay()
     On Error Resume Next
@@ -854,7 +855,7 @@ End Sub
 
 
 '----------------------------------------------------
-' æ£€æŸ¥çª—ä½“æ˜¯å¦å­˜åœ¨
+' ¼ì²é´°ÌåÊÇ·ñ´æÔÚ
 '----------------------------------------------------
 Private Function FormExists(sName As String) As Boolean
     Dim obj As AccessObject
@@ -869,7 +870,7 @@ End Function
 
 
 '----------------------------------------------------
-' æ£€æŸ¥çª—ä½“æ˜¯å¦å·²æ‰“å¼€
+' ¼ì²é´°ÌåÊÇ·ñÒÑ´ò¿ª
 '----------------------------------------------------
 Private Function IsFormOpen(sName As String) As Boolean
     On Error Resume Next
@@ -880,7 +881,7 @@ End Function
 
 
 '----------------------------------------------------
-' å®šä½çª—ä½“åˆ°æ–‡æœ¬æ¡†æ­£ä¸‹æ–¹ (å‚ç…§ modCalendar çš„ CalendarFor æ–¹æ³•)
+' ¶¨Î»´°Ìåµ½ÎÄ±¾¿òÕıÏÂ·½ (²ÎÕÕ modCalendar µÄ CalendarFor ·½·¨)
 '----------------------------------------------------
 Private Sub DatePicker_PositionBelowInput(frm As Form)
     On Error Resume Next
@@ -897,7 +898,7 @@ Private Sub DatePicker_PositionBelowInput(frm As Form)
     intWidth = typRect_Calendar.Right - typRect_Calendar.Left
     intHeight = typRect_Calendar.Bottom - typRect_Calendar.Top
     
-    ' å·¦å¯¹é½æ–‡æœ¬æ¡†å·¦è¾¹ç¼˜ (-3 è¡¥å¿ Access æ— è¾¹æ¡†çª—ä½“å®¢æˆ·åŒºå†…è¾¹è·)
+    ' ×ó¶ÔÆëÎÄ±¾¿ò×ó±ßÔµ (-3 ²¹³¥ Access ÎŞ±ß¿ò´°Ìå¿Í»§ÇøÄÚ±ß¾à)
     intLeft = m_rcInputBox.Left - 3
     If intLeft < 0 Then
         intLeft = 0
@@ -905,12 +906,12 @@ Private Sub DatePicker_PositionBelowInput(frm As Form)
         intLeft = typRect_Desktop.Right - intWidth
     End If
     
-    ' æ”¾åœ¨æ–‡æœ¬æ¡†æ­£ä¸‹æ–¹
+    ' ·ÅÔÚÎÄ±¾¿òÕıÏÂ·½
     intTop = m_rcInputBox.Bottom
     If intTop < 0 Then
         intTop = 0
     ElseIf intTop + intHeight > typRect_Desktop.Bottom Then
-        ' ä¸‹æ–¹æ”¾ä¸ä¸‹ï¼Œæ”¾åˆ°æ–‡æœ¬æ¡†ä¸Šæ–¹
+        ' ÏÂ·½·Å²»ÏÂ£¬·Åµ½ÎÄ±¾¿òÉÏ·½
         intTop = m_rcInputBox.Top - intHeight
     End If
     
@@ -919,7 +920,7 @@ End Sub
 
 
 '----------------------------------------------------
-' å›å†™ç»“æœåˆ°è°ƒç”¨æ§ä»¶ (éæ¨¡æ€ä¸‹æ‹‰æ¨¡å¼)
+' »ØĞ´½á¹ûµ½µ÷ÓÃ¿Ø¼ş (·ÇÄ£Ì¬ÏÂÀ­Ä£Ê½)
 '----------------------------------------------------
 Private Sub DatePicker_WriteBack(ByVal dt As Variant)
     On Error Resume Next
@@ -927,7 +928,7 @@ Private Sub DatePicker_WriteBack(ByVal dt As Variant)
     If Not m_bIsNonModal Then Exit Sub
     If g_txtDateInput Is Nothing Then Exit Sub
     
-    ' å†™å…¥å€¼åˆ°è°ƒç”¨æ§ä»¶
+    ' Ğ´ÈëÖµµ½µ÷ÓÃ¿Ø¼ş
     If Not IsNull(dt) Then
         If m_sCallbackFmt <> "" Then
             g_txtDateInput.value = Format(dt, m_sCallbackFmt)
@@ -935,7 +936,7 @@ Private Sub DatePicker_WriteBack(ByVal dt As Variant)
             g_txtDateInput.value = dt
         End If
     ElseIf m_bConfirmed Then
-        ' ç”¨æˆ·ç‚¹äº†"æ¸…é™¤" â†’ æ¸…ç©º
+        ' ÓÃ»§µãÁË"Çå³ı" ¡ú Çå¿Õ
         g_txtDateInput.value = Null
     End If
     
@@ -945,13 +946,13 @@ End Sub
 
 
 '----------------------------------------------------
-' çª—ä½“å¤±å»ç„¦ç‚¹ â†’ è‡ªåŠ¨å…³é—­ (éæ¨¡æ€ä¸‹æ‹‰æ¨¡å¼)
+' ´°ÌåÊ§È¥½¹µã ¡ú ×Ô¶¯¹Ø±Õ (·ÇÄ£Ì¬ÏÂÀ­Ä£Ê½)
 '----------------------------------------------------
 Public Function DatePicker_FormDeactivate() As Variant
     On Error Resume Next
     
     If m_bIsNonModal Then
-        ' å»¶æ—¶å…³é—­ (é¿å…åœ¨æ§ä»¶åˆ‡æ¢ç„¦ç‚¹æ—¶è¯¯å…³)
+        ' ÑÓÊ±¹Ø±Õ (±ÜÃâÔÚ¿Ø¼şÇĞ»»½¹µãÊ±Îó¹Ø)
         Forms(FORM_NAME).TimerInterval = 100
     End If
     
@@ -960,7 +961,7 @@ End Function
 
 
 '----------------------------------------------------
-' å®šæ—¶å™¨: å»¶æ—¶å…³é—­çª—ä½“
+' ¶¨Ê±Æ÷: ÑÓÊ±¹Ø±Õ´°Ìå
 '----------------------------------------------------
 Public Function DatePicker_Timer() As Variant
     On Error Resume Next
@@ -969,14 +970,14 @@ Public Function DatePicker_Timer() As Variant
     Set frm = Forms(FORM_NAME)
     frm.TimerInterval = 0
     
-    ' æ£€æŸ¥æ˜¯å¦ä»ç„¶å¤±ç„¦
+    ' ¼ì²éÊÇ·ñÈÔÈ»Ê§½¹
     If m_bIsNonModal Then
         Dim sActive As String
         sActive = ""
         sActive = Screen.ActiveForm.Name
         
         If sActive <> FORM_NAME Then
-            ' ç¡®è®¤ä¸¢å¤±ç„¦ç‚¹ â†’ å–æ¶ˆå¹¶å…³é—­
+            ' È·ÈÏ¶ªÊ§½¹µã ¡ú È¡Ïû²¢¹Ø±Õ
             Set g_txtDateInput = Nothing
             DatePicker_SetResult Null, False
             DoCmd.Close acForm, FORM_NAME
@@ -987,41 +988,41 @@ Public Function DatePicker_Timer() As Variant
 End Function
 
 
-' â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-' â•‘         çª—ä½“è‡ªåŠ¨æ„å»ºå™¨                         â•‘
-' â•‘   åœ¨ç«‹å³çª—å£(Ctrl+G)è¿è¡Œ: CreateDatePickerForm â•‘
-' â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+' ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[
+' ¨U         ´°Ìå×Ô¶¯¹¹½¨Æ÷                         ¨U
+' ¨U   ÔÚÁ¢¼´´°¿Ú(Ctrl+G)ÔËĞĞ: CreateDatePickerForm ¨U
+' ¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a
 
 Public Sub CreateDatePickerForm()
     On Error GoTo ErrHandler
     
     ' ========================================
-    ' å¸ƒå±€å‚æ•° (å•ä½: ç¼‡ twips, 1è‹±å¯¸=1440ç¼‡)
+    ' ²¼¾Ö²ÎÊı (µ¥Î»: ç¾ twips, 1Ó¢´ç=1440ç¾)
     ' ========================================
-    Dim LM As Long:     LM = 45         ' å·¦è¾¹è· (45ç¼‡å†…è¾¹è·)
-    Dim CW As Long:     CW = 480        ' æ—¥æœŸæ ¼å­å®½åº¦
-    Dim CH As Long:     CH = 340        ' æ—¥æœŸæ ¼å­é«˜åº¦
-    Dim FW As Long:     FW = 5370       ' çª—ä½“å®½åº¦ (7*480+å³ä¾§æ—¶é—´åŒº)
-    Dim SH As Long:     SH = 3900       ' DetailåŒºé«˜åº¦
-    
-    ' å‚ç›´ä½ç½® (å…¨éƒ¨+45ç¼‡é¡¶éƒ¨å†…è¾¹è·)
-    Dim yDisp As Long:  yDisp = 105     ' æ—¥æœŸæ˜¾ç¤ºæ–‡æœ¬æ¡†
-    Dim hDisp As Long:  hDisp = 380     ' æ˜¾ç¤ºæ¡†é«˜åº¦
-    Dim yNav As Long:   yNav = 545      ' æœˆä»½å¯¼èˆªè¡Œ
-    Dim hNav As Long:   hNav = 370      ' å¯¼èˆªè¡Œé«˜åº¦
-    Dim yDow As Long:   yDow = 965      ' æ˜ŸæœŸæ ‡å¤´
-    Dim hDow As Long:   hDow = 280      ' æ˜ŸæœŸæ ‡å¤´é«˜åº¦
-    Dim yGrid As Long:  yGrid = 1275    ' æ—¥æœŸç½‘æ ¼èµ·å§‹
-    Dim yBtn As Long:   yBtn = 3345     ' åº•éƒ¨æŒ‰é’®
-    Dim hBtn As Long:   hBtn = 360      ' æŒ‰é’®é«˜åº¦
-    
-    ' æ—¶é—´åŒºåŸŸ
-    Dim xTime As Long:  xTime = 3675    ' æ—¶é—´åŒºå·¦è¾¹ (+45)
-    Dim wTime As Long:  wTime = 700     ' æ—¶é—´åˆ—å®½åº¦
-    Dim gTime As Long:  gTime = 120     ' æ—¶é—´ä¸¤åˆ—é—´è·
+    Dim LM As Long:     LM = 45         ' ×ó±ß¾à (45ç¾ÄÚ±ß¾à)
+    Dim CW As Long:     CW = 480        ' ÈÕÆÚ¸ñ×Ó¿í¶È
+    Dim CH As Long:     CH = 340        ' ÈÕÆÚ¸ñ×Ó¸ß¶È
+    Dim FW As Long:     FW = 5370       ' ´°Ìå¿í¶È (7*480+ÓÒ²àÊ±¼äÇø)
+    Dim SH As Long:     SH = 3900       ' DetailÇø¸ß¶È
+
+    ' ´¹Ö±Î»ÖÃ (È«²¿+45ç¾¶¥²¿ÄÚ±ß¾à)
+    Dim yDisp As Long:  yDisp = 105     ' ÈÕÆÚÏÔÊ¾ÎÄ±¾¿ò
+    Dim hDisp As Long:  hDisp = 380     ' ÏÔÊ¾¿ò¸ß¶È
+    Dim yNav As Long:   yNav = 545      ' ÔÂ·İµ¼º½ĞĞ
+    Dim hNav As Long:   hNav = 370      ' µ¼º½ĞĞ¸ß¶È
+    Dim yDow As Long:   yDow = 965      ' ĞÇÆÚ±êÍ·
+    Dim hDow As Long:   hDow = 280      ' ĞÇÆÚ±êÍ·¸ß¶È
+    Dim yGrid As Long:  yGrid = 1275    ' ÈÕÆÚÍø¸ñÆğÊ¼
+    Dim yBtn As Long:   yBtn = 3345     ' µ×²¿°´Å¥
+    Dim hBtn As Long:   hBtn = 360      ' °´Å¥¸ß¶È
+
+    ' Ê±¼äÇøÓò
+    Dim xTime As Long:  xTime = 3675    ' Ê±¼äÇø×ó±ß (+45)
+    Dim wTime As Long:  wTime = 700     ' Ê±¼äÁĞ¿í¶È
+    Dim gTime As Long:  gTime = 120     ' Ê±¼äÁ½ÁĞ¼ä¾à
     
     ' ========================================
-    ' åˆ é™¤å·²æœ‰çª—ä½“
+    ' É¾³ıÒÑÓĞ´°Ìå
     ' ========================================
     If FormExists(FORM_NAME) Then
         On Error Resume Next
@@ -1031,33 +1032,33 @@ Public Sub CreateDatePickerForm()
     End If
     
     ' ========================================
-    ' åˆ›å»ºçª—ä½“
+    ' ´´½¨´°Ìå
     ' ========================================
     Dim frm As Form
     Set frm = CreateForm
     Dim sTmp As String
-    sTmp = frm.Name     ' ä¸´æ—¶çª—ä½“å (å¦‚ "Form1")
+    sTmp = frm.Name     ' ÁÙÊ±´°ÌåÃû (Èç "Form1")
     
-    ' --- çª—ä½“å±æ€§ ---
+    ' --- ´°ÌåÊôĞÔ ---
     With frm
         .Caption = ""
-        .DefaultView = 0                ' å•ä¸€çª—ä½“
-        .ScrollBars = 0                 ' æ— æ»šåŠ¨æ¡
+        .DefaultView = 0                ' µ¥Ò»´°Ìå
+        .ScrollBars = 0                 ' ÎŞ¹ö¶¯Ìõ
         .RecordSelectors = False
         .NavigationButtons = False
         .DividingLines = False
-        .AutoCenter = False             ' ä¸è‡ªåŠ¨å±…ä¸­ (æˆ‘ä»¬æ‰‹åŠ¨å®šä½)
+        .AutoCenter = False             ' ²»×Ô¶¯¾ÓÖĞ (ÎÒÃÇÊÖ¶¯¶¨Î»)
         .PopUp = True
-        .Modal = False                  ' éæ¨¡æ€ (æ”¯æŒç‚¹å‡»å¤–éƒ¨å…³é—­)
-        .BorderStyle = 0                ' â˜… æ— è¾¹æ¡† (æ— æ ‡é¢˜æ )
-        .MinMaxButtons = 0              ' æ— æœ€å°æœ€å¤§åŒ–
+        .Modal = False                  ' ·ÇÄ£Ì¬ (Ö§³Öµã»÷Íâ²¿¹Ø±Õ)
+        .BorderStyle = 0                ' ¡ï ÎŞ±ß¿ò (ÎŞ±êÌâÀ¸)
+        .MinMaxButtons = 0              ' ÎŞ×îĞ¡×î´ó»¯
         .CloseButton = False
         .Width = FW
         .Section(acDetail).Height = SH
         .Section(acDetail).BackColor = CLR_WHITE
     End With
     
-    ' --- çª—ä½“äº‹ä»¶ ---
+    ' --- ´°ÌåÊÂ¼ş ---
     frm.OnLoad = "=DatePicker_FormLoad()"
     frm.OnDeactivate = "=DatePicker_FormDeactivate()"
     frm.OnTimer = "=DatePicker_Timer()"
@@ -1066,17 +1067,17 @@ Public Sub CreateDatePickerForm()
     Dim ctl As Control
     
     ' ========================================
-    ' 0. è¾¹æ¡†çŸ©å½¢ (è§†è§‰è¾¹æ¡†ï¼Œå› ä¸ºçª—ä½“æ— è¾¹æ¡†)
+    ' 0. ±ß¿ò¾ØĞÎ (ÊÓ¾õ±ß¿ò£¬ÒòÎª´°ÌåÎŞ±ß¿ò)
     ' ========================================
     Set ctl = CreateControl(sTmp, acRectangle, acDetail, "", "", _
                             45, 45, FW - 90, SH - 90)
     ctl.Name = "rctBorder"
-    ctl.BorderStyle = 1             ' å®çº¿
+    ctl.BorderStyle = 1             ' ÊµÏß
     ctl.BorderColor = CLR_BORDER
     ctl.BorderWidth = 1
-    ctl.BackStyle = 0               ' é€æ˜
+    ctl.BackStyle = 0               ' Í¸Ã÷
     ' ========================================
-    ' 1. æ—¥æœŸæ˜¾ç¤ºæ–‡æœ¬æ¡† (é¡¶éƒ¨)
+    ' 1. ÈÕÆÚÏÔÊ¾ÎÄ±¾¿ò (¶¥²¿)
     ' ========================================
     Set ctl = CreateControl(sTmp, acTextBox, acDetail, "", "", _
                             LM, yDisp, FW - LM * 2, hDisp)
@@ -1089,28 +1090,28 @@ Public Sub CreateDatePickerForm()
     ctl.ForeColor = CLR_BLACK
     ctl.BorderStyle = 1
     ctl.BorderColor = CLR_BORDER
-    ' åˆ é™¤å¯èƒ½è‡ªåŠ¨ç”Ÿæˆçš„å…³è”æ ‡ç­¾
+    ' É¾³ı¿ÉÄÜ×Ô¶¯Éú³ÉµÄ¹ØÁª±êÇ©
     On Error Resume Next
     DeleteControl sTmp, ctl.Controls(0).Name
     On Error GoTo ErrHandler
     
     ' ========================================
-    ' 2. æœˆä»½/å¹´ä»½å¯¼èˆª
+    ' 2. ÔÂ·İ/Äê·İµ¼º½
     ' ========================================
     
-    ' æœˆä»½å¹´ä»½æ ‡ç­¾
+    ' ÔÂ·İÄê·İ±êÇ©
     Set ctl = CreateControl(sTmp, acLabel, acDetail, "", "", _
                             LM + 45, yNav, 2100, hNav)
     ctl.Name = "lblMonthYear"
-    ctl.Caption = "2026å¹´02æœˆ"
+    ctl.Caption = "2026Äê02ÔÂ"
     ctl.FontSize = 10
     ctl.FontName = "Segoe UI"
     ctl.FontWeight = 700
     ctl.ForeColor = CLR_BLACK
-    ctl.BackStyle = 0               ' é€æ˜
-    ctl.TextAlign = 1               ' å·¦å¯¹é½
+    ctl.BackStyle = 0               ' Í¸Ã÷
+    ctl.TextAlign = 1               ' ×ó¶ÔÆë
     
-    ' << ä¸Šä¸€å¹´æŒ‰é’®
+    ' << ÉÏÒ»Äê°´Å¥
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             1645, yNav, 420, hNav)
     ctl.Name = "cmdPrevYear"
@@ -1119,7 +1120,7 @@ Public Sub CreateDatePickerForm()
     ctl.FontName = "Segoe UI"
     ctl.OnClick = "=DatePicker_PrevYear()"
     
-    ' < ä¸Šä¸ªæœˆæŒ‰é’®
+    ' < ÉÏ¸öÔÂ°´Å¥
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             2065, yNav, 420, hNav)
     ctl.Name = "cmdPrev"
@@ -1128,7 +1129,7 @@ Public Sub CreateDatePickerForm()
     ctl.FontName = "Segoe UI"
     ctl.OnClick = "=DatePicker_PrevMonth()"
     
-    ' > ä¸‹ä¸ªæœˆæŒ‰é’®
+    ' > ÏÂ¸öÔÂ°´Å¥
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             2485, yNav, 420, hNav)
     ctl.Name = "cmdNext"
@@ -1137,7 +1138,7 @@ Public Sub CreateDatePickerForm()
     ctl.FontName = "Segoe UI"
     ctl.OnClick = "=DatePicker_NextMonth()"
     
-    ' >> ä¸‹ä¸€å¹´æŒ‰é’®
+    ' >> ÏÂÒ»Äê°´Å¥
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             2905, yNav, 420, hNav)
     ctl.Name = "cmdNextYear"
@@ -1147,10 +1148,10 @@ Public Sub CreateDatePickerForm()
     ctl.OnClick = "=DatePicker_NextYear()"
     
     ' ========================================
-    ' 3. æ—¶é—´æ˜¾ç¤ºå¤´éƒ¨ (è“è‰²æ ‡ç­¾)
+    ' 3. Ê±¼äÏÔÊ¾Í·²¿ (À¶É«±êÇ©)
     ' ========================================
     
-    ' å°æ—¶ æ˜¾ç¤º
+    ' Ğ¡Ê± ÏÔÊ¾
     Set ctl = CreateControl(sTmp, acLabel, acDetail, "", "", _
                             xTime, yNav, wTime, hNav)
     ctl.Name = "lblHour"
@@ -1158,12 +1159,12 @@ Public Sub CreateDatePickerForm()
     ctl.FontSize = 14
     ctl.FontName = "Segoe UI"
     ctl.FontWeight = 700
-    ctl.TextAlign = 2               ' å±…ä¸­
-    ctl.BackStyle = 1               ' ä¸é€æ˜
+    ctl.TextAlign = 2               ' ¾ÓÖĞ
+    ctl.BackStyle = 1               ' ²»Í¸Ã÷
     ctl.BackColor = CLR_BLUE
     ctl.ForeColor = CLR_WHITE
     
-    ' åˆ†é’Ÿ æ˜¾ç¤º
+    ' ·ÖÖÓ ÏÔÊ¾
     Set ctl = CreateControl(sTmp, acLabel, acDetail, "", "", _
                             xTime + wTime + gTime, yNav, wTime, hNav)
     ctl.Name = "lblMin"
@@ -1177,10 +1178,10 @@ Public Sub CreateDatePickerForm()
     ctl.ForeColor = CLR_WHITE
     
     ' ========================================
-    ' 4. æ˜ŸæœŸæ ‡å¤´ (ä¸€ äºŒ ä¸‰ å›› äº” å…­ æ—¥)
+    ' 4. ĞÇÆÚ±êÍ· (Ò» ¶ş Èı ËÄ Îå Áù ÈÕ)
     ' ========================================
     Dim sDows As Variant
-    sDows = Array("ä¸€", "äºŒ", "ä¸‰", "å››", "äº”", "å…­", "æ—¥")
+    sDows = Array("Ò»", "¶ş", "Èı", "ËÄ", "Îå", "Áù", "ÈÕ")
     
     Dim iCol As Integer
     For iCol = 0 To 6
@@ -1188,20 +1189,20 @@ Public Sub CreateDatePickerForm()
                                 LM + iCol * CW, yDow, CW, hDow)
         ctl.Name = "lblW" & (iCol + 1)
         ctl.Caption = sDows(iCol)
-        ctl.TextAlign = 2           ' å±…ä¸­
+        ctl.TextAlign = 2           ' ¾ÓÖĞ
         ctl.FontSize = 9
         ctl.FontName = "Segoe UI"
         ctl.ForeColor = CLR_DKGRAY
-        ctl.BackStyle = 0           ' é€æ˜
+        ctl.BackStyle = 0           ' Í¸Ã÷
         
-        ' å‘¨æœ«ï¼ˆå‘¨å…­ã€å‘¨æ—¥ï¼‰ç”¨è“ç°è‰²
+        ' ÖÜÄ©£¨ÖÜÁù¡¢ÖÜÈÕ£©ÓÃÀ¶»ÒÉ«
         If iCol >= 5 Then
             ctl.ForeColor = CLR_BLUE
         End If
     Next iCol
     
     ' ========================================
-    ' 5. 42ä¸ªæ—¥æœŸæ ¼å­ (6è¡Œ Ã— 7åˆ— çš„æ ‡ç­¾)
+    ' 5. 42¸öÈÕÆÚ¸ñ×Ó (6ĞĞ ¡Á 7ÁĞ µÄ±êÇ©)
     ' ========================================
     Dim iRow As Integer, iCell As Integer
     iCell = 0
@@ -1216,15 +1217,15 @@ Public Sub CreateDatePickerForm()
                                     CW, CH)
             ctl.Name = "lblD" & Format(iCell, "00")
             ctl.Caption = ""
-            ctl.TextAlign = 2       ' å±…ä¸­
-            ctl.BackStyle = 1       ' ä¸é€æ˜ (æ‰èƒ½è®¾èƒŒæ™¯è‰²)
+            ctl.TextAlign = 2       ' ¾ÓÖĞ
+            ctl.BackStyle = 1       ' ²»Í¸Ã÷ (²ÅÄÜÉè±³¾°É«)
             ctl.BackColor = CLR_WHITE
             ctl.ForeColor = CLR_BLACK
             ctl.FontSize = 9
             ctl.FontName = "Segoe UI"
-            ctl.BorderStyle = 0     ' æ— è¾¹æ¡†
+            ctl.BorderStyle = 0     ' ÎŞ±ß¿ò
             
-            ' ç»‘å®šäº‹ä»¶
+            ' °ó¶¨ÊÂ¼ş
             ctl.OnClick = "=DatePicker_DayClick(" & iCell & ")"
             ctl.OnDblClick = "=DatePicker_DayDblClick(" & iCell & ")"
             ctl.OnMouseMove = "=DatePicker_DayMouseMove(" & iCell & ")"
@@ -1232,87 +1233,87 @@ Public Sub CreateDatePickerForm()
     Next iRow
     
     ' ========================================
-    ' 6. æ—¶é—´é€‰æ‹©åˆ—è¡¨
+    ' 6. Ê±¼äÑ¡ÔñÁĞ±í
     ' ========================================
     Dim yListTop As Long
     yListTop = yDow
     Dim hList As Long
-    hList = yBtn - yDow             ' åˆ—è¡¨é«˜åº¦ = ç½‘æ ¼åŒºåŸŸé«˜åº¦
+    hList = yBtn - yDow             ' ÁĞ±í¸ß¶È = Íø¸ñÇøÓò¸ß¶È
     
-    ' å°æ—¶åˆ—è¡¨
+    ' Ğ¡Ê±ÁĞ±í
     Set ctl = CreateControl(sTmp, acListBox, acDetail, "", "", _
                             xTime, yListTop, wTime, hList)
     ctl.Name = "lstHour"
     ctl.FontSize = 10
     ctl.FontName = "Segoe UI"
     ctl.ColumnCount = 1
-    ctl.AllowValueListEdits = False    ' ç¦æ­¢ç¼–è¾‘å€¼åˆ—è¡¨
+    ctl.AllowValueListEdits = False    ' ½ûÖ¹±à¼­ÖµÁĞ±í
     ctl.OnClick = "=DatePicker_HourClick()"
-    ' åˆ é™¤å¯èƒ½çš„å…³è”æ ‡ç­¾
+    ' É¾³ı¿ÉÄÜµÄ¹ØÁª±êÇ©
     On Error Resume Next
     DeleteControl sTmp, ctl.Controls(0).Name
     On Error GoTo ErrHandler
     
-    ' åˆ†é’Ÿåˆ—è¡¨
+    ' ·ÖÖÓÁĞ±í
     Set ctl = CreateControl(sTmp, acListBox, acDetail, "", "", _
                             xTime + wTime + gTime, yListTop, wTime, hList)
     ctl.Name = "lstMin"
     ctl.FontSize = 10
     ctl.FontName = "Segoe UI"
     ctl.ColumnCount = 1
-    ctl.AllowValueListEdits = False    ' ç¦æ­¢ç¼–è¾‘å€¼åˆ—è¡¨
+    ctl.AllowValueListEdits = False    ' ½ûÖ¹±à¼­ÖµÁĞ±í
     ctl.OnClick = "=DatePicker_MinClick()"
-    ' åˆ é™¤å¯èƒ½çš„å…³è”æ ‡ç­¾
+    ' É¾³ı¿ÉÄÜµÄ¹ØÁª±êÇ©
     On Error Resume Next
     DeleteControl sTmp, ctl.Controls(0).Name
     On Error GoTo ErrHandler
     
     ' ========================================
-    ' 7. åº•éƒ¨æŒ‰é’®
+    ' 7. µ×²¿°´Å¥
     ' ========================================
     
-    ' æ¸…é™¤
+    ' Çå³ı
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             LM + 45, yBtn, 960, hBtn)
     ctl.Name = "cmdClear"
-    ctl.Caption = "æ¸…é™¤"
+    ctl.Caption = "Çå³ı"
     ctl.FontSize = 9
     ctl.FontName = "Segoe UI"
     ctl.OnClick = "=DatePicker_Clear()"
     
-    ' ä»Šå¤©
+    ' ½ñÌì
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             2205, yBtn, 960, hBtn)
     ctl.Name = "cmdToday"
-    ctl.Caption = "ä»Šå¤©"
+    ctl.Caption = "½ñÌì"
     ctl.FontSize = 9
     ctl.FontName = "Segoe UI"
     ctl.OnClick = "=DatePicker_GoToday()"
     
-    ' (ç¡®å®š/å–æ¶ˆæŒ‰é’®å·²ç§»é™¤ï¼Œé€‰æ—¥æœŸå•å‡»å³ç¡®è®¤ï¼Œç‚¹å‡»å¤–éƒ¨è‡ªåŠ¨å…³é—­)
+    ' (È·¶¨/È¡Ïû°´Å¥ÒÑÒÆ³ı£¬Ñ¡ÈÕÆÚµ¥»÷¼´È·ÈÏ£¬µã»÷Íâ²¿×Ô¶¯¹Ø±Õ)
     
     ' ========================================
-    ' ä¿å­˜å¹¶é‡å‘½åçª—ä½“
+    ' ±£´æ²¢ÖØÃüÃû´°Ìå
     ' ========================================
     DoCmd.Close acForm, sTmp, acSaveYes
     DoCmd.Rename FORM_NAME, acForm, sTmp
     
-    MsgBox "æ—¥æœŸé€‰æ‹©å™¨çª—ä½“ [" & FORM_NAME & "] åˆ›å»ºæˆåŠŸï¼" & vbCrLf & vbCrLf & _
-           "â•â•â• ä½¿ç”¨æ–¹æ³• â•â•â•" & vbCrLf & vbCrLf & _
+    MsgBox "ÈÕÆÚÑ¡ÔñÆ÷´°Ìå [" & FORM_NAME & "] ´´½¨³É¹¦£¡" & vbCrLf & vbCrLf & _
+           "¨T¨T¨T Ê¹ÓÃ·½·¨ ¨T¨T¨T" & vbCrLf & vbCrLf & _
            "  Dim dt As Variant" & vbCrLf & _
            "  dt = ShowDatePicker()" & vbCrLf & vbCrLf & _
-           "å«æ—¥æœŸ+æ—¶é—´:" & vbCrLf & _
+           "º¬ÈÕÆÚ+Ê±¼ä:" & vbCrLf & _
            "  dt = ShowDatePicker(Now, True)" & vbCrLf & vbCrLf & _
-           "ä»…é€‰æ—¥æœŸ:" & vbCrLf & _
+           "½öÑ¡ÈÕÆÚ:" & vbCrLf & _
            "  dt = ShowDatePicker(Now, False)", _
-           vbInformation, "åˆ›å»ºæˆåŠŸ"
+           vbInformation, "´´½¨³É¹¦"
     
     Exit Sub
 
 ErrHandler:
-    MsgBox "åˆ›å»ºçª—ä½“å¤±è´¥: " & Err.Description & vbCrLf & _
-           "é”™è¯¯å·: " & Err.Number, vbCritical, "åˆ›å»ºå¤±è´¥"
-    ' å°è¯•æ¸…ç†
+    MsgBox "´´½¨´°ÌåÊ§°Ü: " & Err.Description & vbCrLf & _
+           "´íÎóºÅ: " & Err.Number, vbCritical, "´´½¨Ê§°Ü"
+    ' ³¢ÊÔÇåÀí
     On Error Resume Next
     DoCmd.Close acForm, sTmp, acSaveNo
 End Sub

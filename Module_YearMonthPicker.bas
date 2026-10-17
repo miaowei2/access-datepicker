@@ -3,7 +3,7 @@ Attribute VB_Name = "Module_YearMonthPicker"
 Option Compare Database
 Option Explicit
 
-' ============ Win32 API å£°æ˜ (å®šä½æ— è¾¹æ¡†çª—ä½“åˆ°æ–‡æœ¬æ¡†ä¸‹æ–¹) ============
+' ============ Win32 API ÉùÃ÷ (¶¨Î»ÎŞ±ß¿ò´°Ìåµ½ÎÄ±¾¿òÏÂ·½) ============
 #If VBA7 Then
     Private Declare PtrSafe Function apiGetFocus Lib "user32" Alias "GetFocus" () As Long
     Private Declare PtrSafe Function apiMoveWindow Lib "user32" Alias "MoveWindow" (ByVal hwnd As Long, ByVal X As Long, ByVal Y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal bRepaint As Long) As Long
@@ -24,81 +24,84 @@ Private Type RECT
 End Type
 
 '====================================================
-' æ¨¡å—åç§°: Module_YearMonthPicker
-' åŠŸèƒ½æè¿°: Accessçº¯çª—ä½“å¹´æœˆé€‰æ‹©å™¨ (æ— éœ€Webæ§ä»¶)
-' ä½œè€…: edonsoftç¼ªç‚œ
-' ç‰ˆæœ¬: 1.0
+' Ä£¿éÃû³Æ: Module_YearMonthPicker
+' ¹¦ÄÜÃèÊö: Access´¿´°ÌåÄêÔÂÑ¡ÔñÆ÷ (ÎŞĞèWeb¿Ø¼ş)
+' ×÷Õß: edonsoftçÑì¿
+' °æ±¾: 1.0
 '
-' ç‰¹ç‚¹:
-'   - çº¯VBA + Accessçª—ä½“å®ç°ï¼Œé›¶å¤–éƒ¨ä¾èµ–
-'   - 4åˆ—Ã—3è¡Œæœˆä»½ç½‘æ ¼ + å¹´ä»½å¯¼èˆª
-'   - è‡ªåŠ¨åˆ›å»ºçª—ä½“ï¼Œä¸€é”®éƒ¨ç½²
-'   - æ‰€æœ‰äº‹ä»¶é€šè¿‡è¡¨è¾¾å¼ç»‘å®šï¼Œæ— éœ€çª—ä½“ä»£ç æ¨¡å—
+' ÌØµã:
+'   - ´¿VBA + Access´°ÌåÊµÏÖ£¬ÁãÍâ²¿ÒÀÀµ
+'   - 4ÁĞ¡Á3ĞĞÔÂ·İÍø¸ñ + Äê·İµ¼º½
+'   - ×Ô¶¯´´½¨´°Ìå£¬Ò»¼ü²¿Êğ
+'   - ËùÓĞÊÂ¼şÍ¨¹ı±í´ïÊ½°ó¶¨£¬ÎŞĞè´°Ìå´úÂëÄ£¿é
 '
-' ä½¿ç”¨æ–¹æ³•:
-'   1. å¯¼å…¥æœ¬æ¨¡å—åˆ°Accessæ•°æ®åº“
-'   2. åœ¨ç«‹å³çª—å£è¿è¡Œ: CreateYearMonthPickerForm
-'   3. åœ¨ä»£ç ä¸­è°ƒç”¨:
+' Ê¹ÓÃ·½·¨:
+'   1. µ¼Èë±¾Ä£¿éµ½AccessÊı¾İ¿â
+'   2. ÔÚÁ¢¼´´°¿ÚÔËĞĞ: CreateYearMonthPickerForm
+'   3. ÔÚ´úÂëÖĞµ÷ÓÃ:
 '      Dim dt As Variant
-'      dt = ShowYearMonthPicker()            ' è¿”å›æœˆä»½é¦–æ—¥æ—¥æœŸ
-'      PickYearMonthFor Me.txtMonth          ' ç»‘å®šæ–‡æœ¬æ¡†
+'      dt = ShowYearMonthPicker()            ' ·µ»ØÔÂ·İÊ×ÈÕÈÕÆÚ
+'      PickYearMonthFor Me.txtMonth          ' °ó¶¨ÎÄ±¾¿ò
 '      PickYearMonthFor Me.txtMonth, "yyyy-mm"
 '====================================================
 
-' ============ é¢œè‰²å¸¸é‡ ============
-Private Const CLR_BLUE As Long = 16024898       ' RGB(66,133,244) ä¸»é¢˜è“
+' ============ ÑÕÉ«³£Á¿ ============
+Private Const CLR_BLUE As Long = 16024898       ' RGB(66,133,244) Ö÷ÌâÀ¶
 Private Const CLR_WHITE As Long = 16777215      ' RGB(255,255,255)
 Private Const CLR_BLACK As Long = 0             ' RGB(0,0,0)
-Private Const CLR_BORDER As Long = 13158600     ' RGB(200,200,200) è¾“å…¥æ¡†è¾¹æ¡†
-Private Const CLR_HOVER As Long = 16576233      ' RGB(233,240,252) é¼ æ ‡æ‚¬åœ
+Private Const CLR_BORDER As Long = 13158600     ' RGB(200,200,200) ÊäÈë¿ò±ß¿ò
+Private Const CLR_HOVER As Long = 16576233      ' RGB(233,240,252) Êó±êĞüÍ£
 
-Private m_ymHoverMonth As Integer                ' å½“å‰æ‚¬åœçš„æœˆä»½ç´¢å¼• (0=æ— )
+Private m_ymHoverMonth As Integer                ' µ±Ç°ĞüÍ£µÄÔÂ·İË÷Òı (0=ÎŞ)
 
-' ============ çª—ä½“å ============
+' ============ ´°ÌåÃû ============
 Private Const YM_FORM_NAME As String = "frmYearMonthPicker"
 
-' ============ æ¨¡å—çº§å˜é‡ ============
-Private m_ymYear As Integer             ' å½“å‰æ˜¾ç¤º/é€‰æ‹©çš„å¹´ä»½
-Private m_ymMonth As Integer            ' å½“å‰é€‰æ‹©çš„æœˆä»½
-Private m_ymResult As Variant           ' è¿”å›ç»“æœ
-Private m_ymConfirmed As Boolean        ' æ˜¯å¦ç¡®è®¤
+' ============ Ä£¿é¼¶±äÁ¿ ============
+Private m_ymYear As Integer             ' µ±Ç°ÏÔÊ¾/Ñ¡ÔñµÄÄê·İ
+Private m_ymMonth As Integer            ' µ±Ç°Ñ¡ÔñµÄÔÂ·İ
+Private m_ymResult As Variant           ' ·µ»Ø½á¹û
+Private m_ymConfirmed As Boolean        ' ÊÇ·ñÈ·ÈÏ
+Private m_ymYearOnly As Boolean
+Private m_ymSelectedYear As Integer
 
-Public g_txtYMInput As TextBox          ' å¹´æœˆé€‰æ‹©å™¨è°ƒç”¨æ—¶çš„æ–‡æœ¬æ¡†å¼•ç”¨
-Private m_rcYMInputBox As RECT          ' è°ƒç”¨æ—¶æ–‡æœ¬æ¡†çš„å±å¹•ä½ç½®
-Private m_sYMCallbackFmt As String      ' å›è°ƒ: æ—¥æœŸæ ¼å¼
-Private m_bYMIsNonModal As Boolean      ' æ˜¯å¦éæ¨¡æ€ (ä¸‹æ‹‰æ¨¡å¼)
+Public g_txtYMInput As TextBox          ' ÄêÔÂÑ¡ÔñÆ÷µ÷ÓÃÊ±µÄÎÄ±¾¿òÒıÓÃ
+Private m_rcYMInputBox As RECT          ' µ÷ÓÃÊ±ÎÄ±¾¿òµÄÆÁÄ»Î»ÖÃ
+Private m_sYMCallbackFmt As String      ' »Øµ÷: ÈÕÆÚ¸ñÊ½
+Private m_bYMIsNonModal As Boolean      ' ÊÇ·ñ·ÇÄ£Ì¬ (ÏÂÀ­Ä£Ê½)
 
 
 '====================================================
-' â˜… å…¬å…±API: æ˜¾ç¤ºå¹´æœˆé€‰æ‹©å™¨
+' ¡ï ¹«¹²API: ÏÔÊ¾ÄêÔÂÑ¡ÔñÆ÷
 '
-' å‚æ•°:
-'   dtDefault  - é»˜è®¤æ—¥æœŸ (å¯é€‰, é»˜è®¤=Now, å–å…¶å¹´æœˆ)
+' ²ÎÊı:
+'   dtDefault  - Ä¬ÈÏÈÕÆÚ (¿ÉÑ¡, Ä¬ÈÏ=Now, È¡ÆäÄêÔÂ)
 '
-' è¿”å›:
-'   Date   - æ‰€é€‰æœˆä»½ç¬¬1å¤©çš„æ—¥æœŸ (å¦‚ 2026-02-01)
-'   Null   - ç”¨æˆ·å–æ¶ˆæˆ–æ¸…é™¤
+' ·µ»Ø:
+'   Date   - ËùÑ¡ÔÂ·İµÚ1ÌìµÄÈÕÆÚ (Èç 2026-02-01)
+'   Null   - ÓÃ»§È¡Ïû»òÇå³ı
 '
-' ç¤ºä¾‹:
+' Ê¾Àı:
 '   Dim dt As Variant
 '   dt = ShowYearMonthPicker()
 '   dt = ShowYearMonthPicker(#2026-6-15#)
 '====================================================
 Public Function ShowYearMonthPicker(Optional ByVal dtDefault As Variant) As Variant
-    ' æ£€æŸ¥çª—ä½“æ˜¯å¦å­˜åœ¨
+    m_ymYearOnly = False
+    ' ¼ì²é´°ÌåÊÇ·ñ´æÔÚ
     If Not FormExists(YM_FORM_NAME) Then
-        MsgBox "å¹´æœˆé€‰æ‹©å™¨çª—ä½“ [" & YM_FORM_NAME & "] ä¸å­˜åœ¨ï¼" & vbCrLf & _
-               "è¯·å…ˆåœ¨ç«‹å³çª—å£(Ctrl+G)ä¸­è¿è¡Œ:" & vbCrLf & _
-               "  CreateYearMonthPickerForm", vbExclamation, "å¹´æœˆé€‰æ‹©å™¨"
+        MsgBox "ÄêÔÂÑ¡ÔñÆ÷´°Ìå [" & YM_FORM_NAME & "] ²»´æÔÚ£¡" & vbCrLf & _
+               "ÇëÏÈÔÚÁ¢¼´´°¿Ú(Ctrl+G)ÖĞÔËĞĞ:" & vbCrLf & _
+               "  CreateYearMonthPickerForm", vbExclamation, "ÄêÔÂÑ¡ÔñÆ÷"
         ShowYearMonthPicker = Null
         Exit Function
     End If
     
-    ' åˆå§‹åŒ–è¿”å›çŠ¶æ€
+    ' ³õÊ¼»¯·µ»Ø×´Ì¬
     m_ymConfirmed = False
     m_ymResult = Null
     
-    ' æ„å»º OpenArgs
+    ' ¹¹½¨ OpenArgs
     Dim sArgs As String
     If IsMissing(dtDefault) Or IsEmpty(dtDefault) Or IsNull(dtDefault) Then
         sArgs = Format(Now, "yyyy/mm")
@@ -111,7 +114,7 @@ Public Function ShowYearMonthPicker(Optional ByVal dtDefault As Variant) As Vari
     
     m_bYMIsNonModal = False
     
-    ' ä»¥å¯¹è¯æ¡†æ¨¡å¼æ‰“å¼€
+    ' ÒÔ¶Ô»°¿òÄ£Ê½´ò¿ª
     DoCmd.OpenForm YM_FORM_NAME, acNormal, , , , acDialog, sArgs
     
     If m_ymConfirmed Then
@@ -123,24 +126,25 @@ End Function
 
 
 '====================================================
-' â˜… é€šç”¨API: ä¸ºä»»æ„æ§ä»¶å¼¹å‡ºå¹´æœˆé€‰æ‹©å™¨å¹¶å›å†™ç»“æœ
+' ¡ï Í¨ÓÃAPI: ÎªÈÎÒâ¿Ø¼şµ¯³öÄêÔÂÑ¡ÔñÆ÷²¢»ØĞ´½á¹û
 '
-' ç”¨æ³•:
+' ÓÃ·¨:
 '   Private Sub txtMonth_Click()
 '       PickYearMonthFor Me.txtMonth
 '   End Sub
 '
 '   PickYearMonthFor Me.txtMonth, "yyyy-mm"
-'   PickYearMonthFor Me.txtMonth, "yyyyå¹´mmæœˆ"
+'   PickYearMonthFor Me.txtMonth, "yyyyÄêmmÔÂ"
 '====================================================
 Public Sub PickYearMonthFor(ctl As Control, _
-                            Optional ByVal sFormat As String = "")
+                            Optional ByVal sFormat As String = "", _
+                            Optional ByVal bYearOnly As Boolean = False)
 On Error GoTo Err_Pick
     
     If Not FormExists(YM_FORM_NAME) Then
-        MsgBox "å¹´æœˆé€‰æ‹©å™¨çª—ä½“ [" & YM_FORM_NAME & "] ä¸å­˜åœ¨ï¼" & vbCrLf & _
-               "è¯·å…ˆåœ¨ç«‹å³çª—å£(Ctrl+G)ä¸­è¿è¡Œ:" & vbCrLf & _
-               "  CreateYearMonthPickerForm", vbExclamation, "å¹´æœˆé€‰æ‹©å™¨"
+        MsgBox "ÄêÔÂÑ¡ÔñÆ÷´°Ìå [" & YM_FORM_NAME & "] ²»´æÔÚ£¡" & vbCrLf & _
+               "ÇëÏÈÔÚÁ¢¼´´°¿Ú(Ctrl+G)ÖĞÔËĞĞ:" & vbCrLf & _
+               "  CreateYearMonthPickerForm", vbExclamation, "ÄêÔÂÑ¡ÔñÆ÷"
         Exit Sub
     End If
     
@@ -153,27 +157,40 @@ On Error GoTo Err_Pick
     m_bYMIsNonModal = True
     m_ymConfirmed = False
     m_ymResult = Null
+    m_ymYearOnly = bYearOnly
     
-    ' è·å–æ–‡æœ¬æ¡†å±å¹•ä½ç½®
+    ' »ñÈ¡ÎÄ±¾¿òÆÁÄ»Î»ÖÃ
     ctl.SetFocus
     apiGetWindowRect apiGetFocus(), m_rcYMInputBox
     
-    ' è§£æé»˜è®¤å€¼
+    ' ½âÎöÄ¬ÈÏÖµ
     Dim sArgs As String
     Dim dtDefault As Variant
     dtDefault = Null
     On Error Resume Next
     If Not IsNull(ctl.value) And ctl.value <> "" Then
-        ' å°è¯•ç›´æ¥è§£æ
+        If m_ymYearOnly Then
+            If IsNumeric(ctl.value) Then
+                Dim inputYear As Double
+                inputYear = CDbl(ctl.value)
+                If inputYear >= 100 And inputYear <= 9999 And inputYear = Fix(inputYear) Then
+                    dtDefault = DateSerial(CInt(inputYear), 1, 1)
+                End If
+            ElseIf IsDate(ctl.value) Then
+                dtDefault = CDate(ctl.value)
+            End If
+        Else
+        ' ³¢ÊÔÖ±½Ó½âÎö
         dtDefault = CDate(ctl.value)
         If Err.Number <> 0 Then
             Err.Clear
-            ' å°è¯• yyyy-mm æ ¼å¼
+            ' ³¢ÊÔ yyyy-mm ¸ñÊ½
             dtDefault = CDate(ctl.value & "-01")
             If Err.Number <> 0 Then
                 Err.Clear
                 dtDefault = Null
             End If
+        End If
         End If
     End If
     On Error GoTo Err_Pick
@@ -184,10 +201,10 @@ On Error GoTo Err_Pick
         sArgs = Format(dtDefault, "yyyy/mm")
     End If
     
-    ' éæ¨¡æ€æ‰“å¼€
+    ' ·ÇÄ£Ì¬´ò¿ª
     DoCmd.OpenForm YM_FORM_NAME, acNormal, , , , , sArgs
     
-    ' å®šä½åˆ°æ–‡æœ¬æ¡†ä¸‹æ–¹
+    ' ¶¨Î»µ½ÎÄ±¾¿òÏÂ·½
     Dim typRect_YM As RECT, typRect_Desktop As RECT
     Dim lngHwnd As Long
     Dim intLeft As Integer, intTop As Integer
@@ -216,15 +233,29 @@ Exit_Pick:
     Exit Sub
 
 Err_Pick:
-    MsgBox Err.Description, vbCritical, "å¹´æœˆé€‰æ‹©å™¨"
+    MsgBox Err.Description, vbCritical, "ÄêÔÂÑ¡ÔñÆ÷"
     Resume Exit_Pick
 End Sub
 
+Public Sub PickYearFor(ctl As Control, Optional ByVal sFormat As String = "")
+    PickYearMonthFor ctl, sFormat, True
+End Sub
+
+Public Function PickYearForCtl(ByVal sFormName As String, ByVal sCtlName As String, _
+                               Optional ByVal sFormat As String = "") As Variant
+    On Error GoTo ErrHandler
+    PickYearFor Forms(sFormName).Controls(sCtlName), sFormat
+    PickYearForCtl = IsFormOpen(YM_FORM_NAME)
+    Exit Function
+ErrHandler:
+    PickYearForCtl = False
+End Function
+
 
 '====================================================
-' â˜… é€šç”¨API: é€šè¿‡çª—ä½“å+æ§ä»¶åå¼¹å‡ºå¹´æœˆé€‰æ‹©å™¨ (æ”¯æŒäº‹ä»¶è¡¨è¾¾å¼)
+' ¡ï Í¨ÓÃAPI: Í¨¹ı´°ÌåÃû+¿Ø¼şÃûµ¯³öÄêÔÂÑ¡ÔñÆ÷ (Ö§³ÖÊÂ¼ş±í´ïÊ½)
 '
-' åœ¨æ§ä»¶å±æ€§çš„"å•å‡»"/"åŒå‡»"äº‹ä»¶ä¸­ç›´æ¥å¡«å†™:
+' ÔÚ¿Ø¼şÊôĞÔµÄ"µ¥»÷"/"Ë«»÷"ÊÂ¼şÖĞÖ±½ÓÌîĞ´:
 '   =PickYearMonthForCtl("frmOrder","txtMonth")
 '   =PickYearMonthForCtl("frmOrder","txtMonth","yyyy-mm")
 '====================================================
@@ -236,15 +267,15 @@ Public Function PickYearMonthForCtl(ByVal sFormName As String, _
     PickYearMonthForCtl = True
     Exit Function
 ErrHandler:
-    MsgBox "PickYearMonthForCtl é”™è¯¯: " & Err.Description, vbExclamation, "å¹´æœˆé€‰æ‹©å™¨"
+    MsgBox "PickYearMonthForCtl ´íÎó: " & Err.Description, vbExclamation, "ÄêÔÂÑ¡ÔñÆ÷"
     PickYearMonthForCtl = False
 End Function
 
 
 '====================================================
-' â˜… é€šç”¨API: ä¸€é”®ä¸ºæ–‡æœ¬æ¡†ç»‘å®šå¹´æœˆé€‰æ‹©å™¨
+' ¡ï Í¨ÓÃAPI: Ò»¼üÎªÎÄ±¾¿ò°ó¶¨ÄêÔÂÑ¡ÔñÆ÷
 '
-' åœ¨çª—ä½“çš„ Form_Load ä¸­è°ƒç”¨:
+' ÔÚ´°ÌåµÄ Form_Load ÖĞµ÷ÓÃ:
 '   AttachYearMonthPicker Me, "txtMonth"
 '   AttachYearMonthPicker Me, "txtMonth", "yyyy-mm"
 '====================================================
@@ -266,29 +297,29 @@ Public Sub AttachYearMonthPicker(frm As Form, _
     ctl.OnDblClick = sExpr
     Exit Sub
 ErrHandler:
-    Debug.Print "AttachYearMonthPicker é”™è¯¯ [" & sCtlName & "]: " & Err.Description
+    Debug.Print "AttachYearMonthPicker ´íÎó [" & sCtlName & "]: " & Err.Description
 End Sub
 
 
-' â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-' â•‘  å¹´æœˆé€‰æ‹©å™¨ äº‹ä»¶å¤„ç†å‡½æ•° (ç”±çª—ä½“æ§ä»¶è¡¨è¾¾å¼è°ƒç”¨)  â•‘
-' â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+' ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[
+' ¨U  ÄêÔÂÑ¡ÔñÆ÷ ÊÂ¼ş´¦Àíº¯Êı (ÓÉ´°Ìå¿Ø¼ş±í´ïÊ½µ÷ÓÃ)  ¨U
+' ¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a
 
-'---------- å¹´æœˆé€‰æ‹©å™¨ è®¾ç½®è¿”å›ç»“æœ ----------
+'---------- ÄêÔÂÑ¡ÔñÆ÷ ÉèÖÃ·µ»Ø½á¹û ----------
 Public Sub YMPicker_SetResult(ByVal vResult As Variant, ByVal bConfirmed As Boolean)
     m_ymResult = vResult
     m_ymConfirmed = bConfirmed
 End Sub
 
 
-'---------- å¹´æœˆé€‰æ‹©å™¨ çª—ä½“åŠ è½½ ----------
+'---------- ÄêÔÂÑ¡ÔñÆ÷ ´°Ìå¼ÓÔØ ----------
 Public Function YMPicker_FormLoad() As Variant
     On Error GoTo ErrHandler
     
     Dim frm As Form
     Set frm = Forms(YM_FORM_NAME)
     
-    ' è§£æ OpenArgs (æ ¼å¼: "yyyy/mm")
+    ' ½âÎö OpenArgs (¸ñÊ½: "yyyy/mm")
     Dim sArgs As String
     sArgs = Nz(frm.OpenArgs, "")
     
@@ -313,8 +344,24 @@ Public Function YMPicker_FormLoad() As Variant
         m_ymMonth = Month(Now)
     End If
     
-    ' é‡ç½®æ‚¬åœçŠ¶æ€
+    ' ÖØÖÃĞüÍ£×´Ì¬
     m_ymHoverMonth = 0
+    m_ymSelectedYear = m_ymYear
+    If m_ymYearOnly Then
+        frm.Controls("cmdThisMonth").Caption = "½ñÄê"
+        frm.Controls("lblYear").Width = 2400
+        frm.Controls("cmdYMPrevYear").ControlTipText = "Ç°12Äê"
+        frm.Controls("cmdYMNextYear").ControlTipText = "ºó12Äê"
+        frm.Controls("cmdPrevDecade").ControlTipText = "Ç°120Äê"
+        frm.Controls("cmdNextDecade").ControlTipText = "ºó120Äê"
+    Else
+        frm.Controls("cmdThisMonth").Caption = "±¾ÔÂ"
+        frm.Controls("lblYear").Width = 1200
+        frm.Controls("cmdYMPrevYear").ControlTipText = "ÉÏÒ»Äê"
+        frm.Controls("cmdYMNextYear").ControlTipText = "ÏÂÒ»Äê"
+        frm.Controls("cmdPrevDecade").ControlTipText = "Ç°10Äê"
+        frm.Controls("cmdNextDecade").ControlTipText = "ºó10Äê"
+    End If
     
     YMPicker_RefreshGrid
     YMPicker_UpdateDisplay
@@ -322,12 +369,12 @@ Public Function YMPicker_FormLoad() As Variant
     YMPicker_FormLoad = True
     Exit Function
 ErrHandler:
-    MsgBox "å¹´æœˆé€‰æ‹©å™¨åˆå§‹åŒ–å¤±è´¥: " & Err.Description, vbExclamation, "é”™è¯¯"
+    MsgBox "ÄêÔÂÑ¡ÔñÆ÷³õÊ¼»¯Ê§°Ü: " & Err.Description, vbExclamation, "´íÎó"
     YMPicker_FormLoad = False
 End Function
 
 
-'---------- æœˆä»½æ ¼å­ å•å‡» ----------
+'---------- ÔÂ·İ¸ñ×Ó µ¥»÷ ----------
 Public Function YMPicker_MonthClick(ByVal iMonth As Integer) As Variant
     On Error Resume Next
     
@@ -336,11 +383,17 @@ Public Function YMPicker_MonthClick(ByVal iMonth As Integer) As Variant
         Exit Function
     End If
     
-    m_ymMonth = iMonth
+    If m_ymYearOnly Then
+        m_ymYear = YMPicker_FirstYear() + iMonth - 1
+        m_ymSelectedYear = m_ymYear
+        m_ymMonth = 1
+    Else
+        m_ymMonth = iMonth
+    End If
     YMPicker_RefreshGrid
     YMPicker_UpdateDisplay
     
-    ' éæ¨¡æ€: é€‰æœˆå³ç¡®è®¤
+    ' ·ÇÄ£Ì¬: Ñ¡ÔÂ¼´È·ÈÏ
     If m_bYMIsNonModal Then
         YMPicker_ConfirmAndClose
     End If
@@ -349,7 +402,7 @@ Public Function YMPicker_MonthClick(ByVal iMonth As Integer) As Variant
 End Function
 
 
-'---------- æœˆä»½æ ¼å­ é¼ æ ‡æ‚¬åœ ----------
+'---------- ÔÂ·İ¸ñ×Ó Êó±êĞüÍ£ ----------
 Public Function YMPicker_MonthMouseMove(ByVal iMonth As Integer) As Variant
     On Error Resume Next
     
@@ -358,8 +411,14 @@ Public Function YMPicker_MonthMouseMove(ByVal iMonth As Integer) As Variant
         Exit Function
     End If
     
-    ' ä¸ä¸Šæ¬¡ç›¸åŒåˆ™å¿½ç•¥
+    ' ÓëÉÏ´ÎÏàÍ¬ÔòºöÂÔ
     If iMonth = m_ymHoverMonth Then
+        YMPicker_MonthMouseMove = True
+        Exit Function
+    End If
+    If m_ymYearOnly Then
+        m_ymHoverMonth = iMonth
+        YMPicker_RefreshGrid
         YMPicker_MonthMouseMove = True
         Exit Function
     End If
@@ -368,17 +427,17 @@ Public Function YMPicker_MonthMouseMove(ByVal iMonth As Integer) As Variant
     Set frm = Forms(YM_FORM_NAME)
     Dim ctl As Control
     
-    ' --- æ¢å¤ä¸Šä¸€ä¸ªæ‚¬åœæ ¼å­çš„åŸå§‹æ ·å¼ ---
+    ' --- »Ö¸´ÉÏÒ»¸öĞüÍ£¸ñ×ÓµÄÔ­Ê¼ÑùÊ½ ---
     If m_ymHoverMonth >= 1 And m_ymHoverMonth <= 12 Then
         Set ctl = frm.Controls("lblM" & Format(m_ymHoverMonth, "00"))
         
-        ' é‡ç½®ä¸ºé»˜è®¤
+        ' ÖØÖÃÎªÄ¬ÈÏ
         ctl.BackColor = CLR_WHITE
         ctl.ForeColor = CLR_BLACK
         ctl.FontWeight = 400
         ctl.BorderStyle = 0
         
-        ' å½“å‰æœˆä»½ (ä»Šå¤©): è“è‰²è¾¹æ¡†
+        ' µ±Ç°ÔÂ·İ (½ñÌì): À¶É«±ß¿ò
         If m_ymYear = Year(Date) And m_ymHoverMonth = Month(Date) Then
             ctl.BorderStyle = 1
             ctl.BorderColor = CLR_BLUE
@@ -389,7 +448,7 @@ Public Function YMPicker_MonthMouseMove(ByVal iMonth As Integer) As Variant
             End If
         End If
         
-        ' å·²é€‰ä¸­æœˆä»½: è“è‰²èƒŒæ™¯ç™½å­—
+        ' ÒÑÑ¡ÖĞÔÂ·İ: À¶É«±³¾°°××Ö
         If m_ymHoverMonth = m_ymMonth Then
             ctl.BackColor = CLR_BLUE
             ctl.ForeColor = CLR_WHITE
@@ -397,11 +456,11 @@ Public Function YMPicker_MonthMouseMove(ByVal iMonth As Integer) As Variant
         End If
     End If
     
-    ' --- è®¾ç½®æ–°æ‚¬åœæ ¼å­çš„é«˜äº®æ ·å¼ ---
+    ' --- ÉèÖÃĞÂĞüÍ£¸ñ×ÓµÄ¸ßÁÁÑùÊ½ ---
     m_ymHoverMonth = iMonth
     Set ctl = frm.Controls("lblM" & Format(iMonth, "00"))
     
-    ' ä»…åœ¨éé€‰ä¸­çŠ¶æ€ä¸‹æ˜¾ç¤ºæ‚¬åœè‰²
+    ' ½öÔÚ·ÇÑ¡ÖĞ×´Ì¬ÏÂÏÔÊ¾ĞüÍ£É«
     If iMonth <> m_ymMonth Then
         ctl.BackColor = CLR_HOVER
         ctl.ForeColor = CLR_BLACK
@@ -415,7 +474,7 @@ Public Function YMPicker_MonthMouseMove(ByVal iMonth As Integer) As Variant
 End Function
 
 
-'---------- æœˆä»½æ ¼å­ åŒå‡» (é€‰ä¸­å¹¶ç¡®è®¤) ----------
+'---------- ÔÂ·İ¸ñ×Ó Ë«»÷ (Ñ¡ÖĞ²¢È·ÈÏ) ----------
 Public Function YMPicker_MonthDblClick(ByVal iMonth As Integer) As Variant
     YMPicker_MonthClick iMonth
     YMPicker_ConfirmAndClose
@@ -423,43 +482,35 @@ Public Function YMPicker_MonthDblClick(ByVal iMonth As Integer) As Variant
 End Function
 
 
-'---------- ä¸Šä¸€å¹´ ----------
+'---------- ÉÏÒ»Äê ----------
 Public Function YMPicker_PrevYear() As Variant
-    m_ymYear = m_ymYear - 1
-    YMPicker_RefreshGrid
-    YMPicker_UpdateDisplay
+    YMPicker_MoveYear -1
     YMPicker_PrevYear = True
 End Function
 
 
-'---------- ä¸‹ä¸€å¹´ ----------
+'---------- ÏÂÒ»Äê ----------
 Public Function YMPicker_NextYear() As Variant
-    m_ymYear = m_ymYear + 1
-    YMPicker_RefreshGrid
-    YMPicker_UpdateDisplay
+    YMPicker_MoveYear 1
     YMPicker_NextYear = True
 End Function
 
 
-'---------- ä¸Šåå¹´ ----------
+'---------- ÉÏÊ®Äê ----------
 Public Function YMPicker_PrevDecade() As Variant
-    m_ymYear = m_ymYear - 10
-    YMPicker_RefreshGrid
-    YMPicker_UpdateDisplay
+    YMPicker_MoveYear -1, True
     YMPicker_PrevDecade = True
 End Function
 
 
-'---------- ä¸‹åå¹´ ----------
+'---------- ÏÂÊ®Äê ----------
 Public Function YMPicker_NextDecade() As Variant
-    m_ymYear = m_ymYear + 10
-    YMPicker_RefreshGrid
-    YMPicker_UpdateDisplay
+    YMPicker_MoveYear 1, True
     YMPicker_NextDecade = True
 End Function
 
 
-'---------- æ¸…é™¤ ----------
+'---------- Çå³ı ----------
 Public Function YMPicker_Clear() As Variant
     YMPicker_SetResult Null, True
     YMPicker_WriteBack Null
@@ -468,24 +519,29 @@ Public Function YMPicker_Clear() As Variant
 End Function
 
 
-'---------- æœ¬æœˆ ----------
+'---------- ±¾ÔÂ ----------
 Public Function YMPicker_GoThisMonth() As Variant
     m_ymYear = Year(Date)
     m_ymMonth = Month(Date)
+    If m_ymYearOnly Then
+        m_ymSelectedYear = m_ymYear
+        m_ymMonth = 1
+    End If
     YMPicker_RefreshGrid
     YMPicker_UpdateDisplay
+    If m_ymYearOnly And m_bYMIsNonModal Then YMPicker_ConfirmAndClose
     YMPicker_GoThisMonth = True
 End Function
 
 
-'---------- ç¡®å®š ----------
+'---------- È·¶¨ ----------
 Public Function YMPicker_OK() As Variant
     YMPicker_ConfirmAndClose
     YMPicker_OK = True
 End Function
 
 
-'---------- å–æ¶ˆ ----------
+'---------- È¡Ïû ----------
 Public Function YMPicker_Cancel() As Variant
     Set g_txtYMInput = Nothing
     YMPicker_SetResult Null, False
@@ -494,12 +550,12 @@ Public Function YMPicker_Cancel() As Variant
 End Function
 
 
-' â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-' â•‘        å¹´æœˆé€‰æ‹©å™¨ å†…éƒ¨è¾…åŠ©å‡½æ•°                  â•‘
-' â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+' ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[
+' ¨U        ÄêÔÂÑ¡ÔñÆ÷ ÄÚ²¿¸¨Öúº¯Êı                  ¨U
+' ¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a
 
 '----------------------------------------------------
-' ç¡®è®¤é€‰æ‹©å¹¶å…³é—­
+' È·ÈÏÑ¡Ôñ²¢¹Ø±Õ
 '----------------------------------------------------
 Private Sub YMPicker_ConfirmAndClose()
     Dim dt As Date
@@ -512,33 +568,92 @@ End Sub
 
 
 '----------------------------------------------------
-' åˆ·æ–°æœˆä»½ç½‘æ ¼
+' Ë¢ĞÂÔÂ·İÍø¸ñ
 '----------------------------------------------------
+Private Function YMPicker_FirstYear() As Integer
+    Dim firstYear As Long
+    firstYear = ((CLng(m_ymYear) - 100) \ 12) * 12 + 100
+    If firstYear > 9988 Then firstYear = 9988
+    YMPicker_FirstYear = CInt(firstYear)
+End Function
+
+Private Sub YMPicker_MoveYear(ByVal direction As Integer, Optional ByVal fast As Boolean = False)
+    Dim stepSize As Long, nextYear As Long
+    stepSize = 1
+    If fast Then stepSize = 10
+    If m_ymYearOnly Then stepSize = stepSize * 12
+    nextYear = CLng(m_ymYear) + direction * stepSize
+    If m_ymYearOnly Then
+        If nextYear < 100 Then nextYear = 100
+        If nextYear > 9999 Then nextYear = 9999
+        m_ymHoverMonth = 0
+    End If
+    m_ymYear = CInt(nextYear)
+    YMPicker_RefreshGrid
+    YMPicker_UpdateDisplay
+End Sub
+
+Private Sub YMPicker_RefreshYears()
+    Dim frm As Form, ctl As Control
+    Dim cellIndex As Integer, cellYear As Integer, firstYear As Integer
+    Set frm = Forms(YM_FORM_NAME)
+    firstYear = YMPicker_FirstYear()
+    frm.Controls("lblYear").Caption = Format$(firstYear, "0000") & " - " & Format$(firstYear + 11, "0000")
+    For cellIndex = 1 To 12
+        cellYear = firstYear + cellIndex - 1
+        Set ctl = frm.Controls("lblM" & Format$(cellIndex, "00"))
+        ctl.Caption = Format$(cellYear, "0000")
+        ctl.BackColor = CLR_WHITE
+        ctl.ForeColor = CLR_BLACK
+        ctl.FontWeight = 400
+        ctl.BorderStyle = 0
+        If cellYear = Year(Date) Then
+            ctl.BorderStyle = 1
+            ctl.BorderColor = CLR_BLUE
+            ctl.BorderWidth = 2
+            ctl.ForeColor = CLR_BLUE
+            ctl.FontWeight = 700
+        End If
+        If cellYear = m_ymSelectedYear Then
+            ctl.BackColor = CLR_BLUE
+            ctl.ForeColor = CLR_WHITE
+            ctl.FontWeight = 700
+        ElseIf cellIndex = m_ymHoverMonth Then
+            ctl.BackColor = CLR_HOVER
+        End If
+    Next cellIndex
+End Sub
+
 Private Sub YMPicker_RefreshGrid()
     On Error Resume Next
+    If m_ymYearOnly Then
+        YMPicker_RefreshYears
+        Exit Sub
+    End If
     
     Dim frm As Form
     Set frm = Forms(YM_FORM_NAME)
     frm.Painting = False
     
-    ' æ›´æ–°å¹´ä»½æ ‡ç­¾
-    frm.Controls("lblYear").Caption = m_ymYear & "å¹´"
+    ' ¸üĞÂÄê·İ±êÇ©
+    frm.Controls("lblYear").Caption = m_ymYear & "Äê"
     
-    ' åˆ·æ–°12ä¸ªæœˆä»½æŒ‰é’®
+    ' Ë¢ĞÂ12¸öÔÂ·İ°´Å¥
     Dim i As Integer
     Dim ctl As Control
     
     For i = 1 To 12
         Set ctl = frm.Controls("lblM" & Format(i, "00"))
-        ctl.Caption = Format(i, "00") & "æœˆ"
+        ctl.Caption = Choose(i, "Ò»ÔÂ", "¶şÔÂ", "ÈıÔÂ", "ËÄÔÂ", "ÎåÔÂ", "ÁùÔÂ", _
+                            "ÆßÔÂ", "°ËÔÂ", "¾ÅÔÂ", "Ê®ÔÂ", "Ê®Ò»ÔÂ", "Ê®¶şÔÂ")
         
-        ' é‡ç½®æ ·å¼
+        ' ÖØÖÃÑùÊ½
         ctl.BackColor = CLR_WHITE
         ctl.ForeColor = CLR_BLACK
         ctl.BorderStyle = 0
         ctl.FontWeight = 400
         
-        ' å½“å‰æœˆä»½ (ä»Šå¤©çš„å¹´æœˆ): è“è‰²è¾¹æ¡†
+        ' µ±Ç°ÔÂ·İ (½ñÌìµÄÄêÔÂ): À¶É«±ß¿ò
         If m_ymYear = Year(Date) And i = Month(Date) Then
             ctl.BorderStyle = 1
             ctl.BorderColor = CLR_BLUE
@@ -549,7 +664,7 @@ Private Sub YMPicker_RefreshGrid()
             End If
         End If
         
-        ' å·²é€‰ä¸­æœˆä»½: è“è‰²èƒŒæ™¯ç™½å­—
+        ' ÒÑÑ¡ÖĞÔÂ·İ: À¶É«±³¾°°××Ö
         If i = m_ymMonth Then
             ctl.BackColor = CLR_BLUE
             ctl.ForeColor = CLR_WHITE
@@ -562,7 +677,7 @@ End Sub
 
 
 '----------------------------------------------------
-' æ›´æ–°é¡¶éƒ¨æ˜¾ç¤º
+' ¸üĞÂ¶¥²¿ÏÔÊ¾
 '----------------------------------------------------
 Private Sub YMPicker_UpdateDisplay()
     On Error Resume Next
@@ -570,12 +685,16 @@ Private Sub YMPicker_UpdateDisplay()
     Dim frm As Form
     Set frm = Forms(YM_FORM_NAME)
     
-    frm.Controls("txtYMDisplay").value = m_ymYear & "å¹´" & Format(m_ymMonth, "00") & "æœˆ"
+    If m_ymYearOnly Then
+        frm.Controls("txtYMDisplay").value = Format$(m_ymSelectedYear, "0000") & "Äê"
+    Else
+        frm.Controls("txtYMDisplay").value = m_ymYear & "Äê" & Format(m_ymMonth, "00") & "ÔÂ"
+    End If
 End Sub
 
 
 '----------------------------------------------------
-' å›å†™ç»“æœåˆ°è°ƒç”¨æ§ä»¶
+' »ØĞ´½á¹ûµ½µ÷ÓÃ¿Ø¼ş
 '----------------------------------------------------
 Private Sub YMPicker_WriteBack(ByVal dt As Variant)
     On Error Resume Next
@@ -586,8 +705,10 @@ Private Sub YMPicker_WriteBack(ByVal dt As Variant)
     If Not IsNull(dt) Then
         If m_sYMCallbackFmt <> "" Then
             g_txtYMInput.value = Format(dt, m_sYMCallbackFmt)
+        ElseIf m_ymYearOnly Then
+            g_txtYMInput.value = Format$(dt, "yyyy")
         Else
-            ' é»˜è®¤æ ¼å¼: yyyy-mm
+            ' Ä¬ÈÏ¸ñÊ½: yyyy-mm
             g_txtYMInput.value = Format(dt, "yyyy-mm")
         End If
     ElseIf m_ymConfirmed Then
@@ -600,7 +721,7 @@ End Sub
 
 
 '----------------------------------------------------
-' çª—ä½“å¤±å»ç„¦ç‚¹ â†’ è‡ªåŠ¨å…³é—­
+' ´°ÌåÊ§È¥½¹µã ¡ú ×Ô¶¯¹Ø±Õ
 '----------------------------------------------------
 Public Function YMPicker_FormDeactivate() As Variant
     On Error Resume Next
@@ -614,7 +735,7 @@ End Function
 
 
 '----------------------------------------------------
-' å®šæ—¶å™¨: å»¶æ—¶å…³é—­
+' ¶¨Ê±Æ÷: ÑÓÊ±¹Ø±Õ
 '----------------------------------------------------
 Public Function YMPicker_Timer() As Variant
     On Error Resume Next
@@ -640,7 +761,7 @@ End Function
 
 
 '----------------------------------------------------
-' æ£€æŸ¥çª—ä½“æ˜¯å¦å­˜åœ¨
+' ¼ì²é´°ÌåÊÇ·ñ´æÔÚ
 '----------------------------------------------------
 Private Function FormExists(sName As String) As Boolean
     Dim obj As AccessObject
@@ -655,7 +776,7 @@ End Function
 
 
 '----------------------------------------------------
-' æ£€æŸ¥çª—ä½“æ˜¯å¦å·²æ‰“å¼€
+' ¼ì²é´°ÌåÊÇ·ñÒÑ´ò¿ª
 '----------------------------------------------------
 Private Function IsFormOpen(sName As String) As Boolean
     On Error Resume Next
@@ -665,38 +786,38 @@ Private Function IsFormOpen(sName As String) As Boolean
 End Function
 
 
-' â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-' â•‘         å¹´æœˆé€‰æ‹©å™¨ çª—ä½“è‡ªåŠ¨æ„å»ºå™¨                              â•‘
-' â•‘   åœ¨ç«‹å³çª—å£(Ctrl+G)è¿è¡Œ: CreateYearMonthPickerForm           â•‘
-' â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+' ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[
+' ¨U         ÄêÔÂÑ¡ÔñÆ÷ ´°Ìå×Ô¶¯¹¹½¨Æ÷                              ¨U
+' ¨U   ÔÚÁ¢¼´´°¿Ú(Ctrl+G)ÔËĞĞ: CreateYearMonthPickerForm           ¨U
+' ¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a
 
-Public Sub CreateYearMonthPickerForm()
+Public Sub CreateYearMonthPickerForm(Optional ByVal silent As Boolean = False)
     On Error GoTo ErrHandler
     
     ' ========================================
-    ' å¸ƒå±€å‚æ•° (å•ä½: ç¼‡ twips)
+    ' ²¼¾Ö²ÎÊı (µ¥Î»: ç¾ twips)
     ' ========================================
-    Dim LM As Long:     LM = 45         ' å·¦è¾¹è·
-    Dim MW As Long:     MW = 720        ' æœˆä»½æ ¼å­å®½åº¦
-    Dim MH As Long:     MH = 420        ' æœˆä»½æ ¼å­é«˜åº¦
-    Dim MG As Long:     MG = 60         ' æœˆä»½æ ¼å­é—´è·
-    Dim FW As Long                      ' çª—ä½“å®½åº¦ (4åˆ— Ã— æ ¼å­å®½ + 3é—´è· + å·¦å³è¾¹è·)
-    FW = LM * 2 + MW * 4 + MG * 3      ' = 90 + 2880 + 180 = 3150
-    Dim SH As Long                      ' DetailåŒºé«˜åº¦
-    
-    ' å‚ç›´ä½ç½®
-    Dim yDisp As Long:  yDisp = 105     ' æ˜¾ç¤ºæ–‡æœ¬æ¡†
-    Dim hDisp As Long:  hDisp = 380     ' æ˜¾ç¤ºæ¡†é«˜åº¦
-    Dim yNav As Long:   yNav = 545      ' å¹´ä»½å¯¼èˆªè¡Œ
-    Dim hNav As Long:   hNav = 370      ' å¯¼èˆªè¡Œé«˜åº¦
-    Dim yGrid As Long:  yGrid = 985     ' æœˆä»½ç½‘æ ¼èµ·å§‹
-    Dim yBtn As Long                    ' åº•éƒ¨æŒ‰é’®
-    yBtn = yGrid + MH * 3 + MG * 2 + 90   ' = 985 + 1260 + 120 + 90 = 2455
-    Dim hBtn As Long:   hBtn = 360      ' æŒ‰é’®é«˜åº¦
-    SH = yBtn + hBtn + 105              ' = 2455 + 360 + 105 = 2920
+    Dim LM As Long:     LM = 180        ' ×ó±ß¾à
+    Dim MW As Long:     MW = 1020       ' ÔÂ·İ¸ñ×Ó¿í¶È
+    Dim MH As Long:     MH = 720        ' ÔÂ·İ¸ñ×Ó¸ß¶È
+    Dim MG As Long:     MG = 120        ' ÔÂ·İ¸ñ×Ó¼ä¾à
+    Dim FW As Long                      ' ´°Ìå¿í¶È (4ÁĞ ¡Á ¸ñ×Ó¿í + 3¼ä¾à + ×óÓÒ±ß¾à)
+    FW = LM * 2 + MW * 4 + MG * 3      ' = 4800
+    Dim SH As Long                      ' DetailÇø¸ß¶È
+
+    ' ´¹Ö±Î»ÖÃ
+    Dim yDisp As Long:  yDisp = 105     ' ÏÔÊ¾ÎÄ±¾¿ò
+    Dim hDisp As Long:  hDisp = 380     ' ÏÔÊ¾¿ò¸ß¶È
+    Dim yNav As Long:   yNav = 545      ' Äê·İµ¼º½ĞĞ
+    Dim hNav As Long:   hNav = 370      ' µ¼º½ĞĞ¸ß¶È
+    Dim yGrid As Long:  yGrid = 985     ' ÔÂ·İÍø¸ñÆğÊ¼
+    Dim yBtn As Long                    ' µ×²¿°´Å¥
+    yBtn = yGrid + MH * 3 + MG * 2 + 90
+    Dim hBtn As Long:   hBtn = 360      ' °´Å¥¸ß¶È
+    SH = yBtn + hBtn + 105
     
     ' ========================================
-    ' åˆ é™¤å·²æœ‰çª—ä½“
+    ' É¾³ıÒÑÓĞ´°Ìå
     ' ========================================
     If FormExists(YM_FORM_NAME) Then
         On Error Resume Next
@@ -706,7 +827,7 @@ Public Sub CreateYearMonthPickerForm()
     End If
     
     ' ========================================
-    ' åˆ›å»ºçª—ä½“
+    ' ´´½¨´°Ìå
     ' ========================================
     Dim frm As Form
     Set frm = CreateForm
@@ -731,7 +852,7 @@ Public Sub CreateYearMonthPickerForm()
         .Section(acDetail).BackColor = CLR_WHITE
     End With
     
-    ' çª—ä½“äº‹ä»¶
+    ' ´°ÌåÊÂ¼ş
     frm.OnLoad = "=YMPicker_FormLoad()"
     frm.OnDeactivate = "=YMPicker_FormDeactivate()"
     frm.OnTimer = "=YMPicker_Timer()"
@@ -740,7 +861,7 @@ Public Sub CreateYearMonthPickerForm()
     Dim ctl As Control
     
     ' ========================================
-    ' 0. è¾¹æ¡†çŸ©å½¢
+    ' 0. ±ß¿ò¾ØĞÎ
     ' ========================================
     Set ctl = CreateControl(sTmp, acRectangle, acDetail, "", "", _
                             45, 45, FW - 90, SH - 90)
@@ -751,7 +872,7 @@ Public Sub CreateYearMonthPickerForm()
     ctl.BackStyle = 0
     
     ' ========================================
-    ' 1. å¹´æœˆæ˜¾ç¤ºæ–‡æœ¬æ¡† (é¡¶éƒ¨)
+    ' 1. ÄêÔÂÏÔÊ¾ÎÄ±¾¿ò (¶¥²¿)
     ' ========================================
     Set ctl = CreateControl(sTmp, acTextBox, acDetail, "", "", _
                             LM, yDisp, FW - LM * 2, hDisp)
@@ -769,14 +890,14 @@ Public Sub CreateYearMonthPickerForm()
     On Error GoTo ErrHandler
     
     ' ========================================
-    ' 2. å¹´ä»½å¯¼èˆª
+    ' 2. Äê·İµ¼º½
     ' ========================================
     
-    ' å¹´ä»½æ ‡ç­¾
+    ' Äê·İ±êÇ©
     Set ctl = CreateControl(sTmp, acLabel, acDetail, "", "", _
                             LM + 45, yNav, 1200, hNav)
     ctl.Name = "lblYear"
-    ctl.Caption = "2026å¹´"
+    ctl.Caption = "2026Äê"
     ctl.FontSize = 10
     ctl.FontName = "Segoe UI"
     ctl.FontWeight = 700
@@ -784,12 +905,12 @@ Public Sub CreateYearMonthPickerForm()
     ctl.BackStyle = 0
     ctl.TextAlign = 1
     
-    ' æŒ‰é’®å®½åº¦ä¸é—´è·
+    ' °´Å¥¿í¶ÈÓë¼ä¾à
     Dim navBtnW As Long: navBtnW = 420
     Dim navStartX As Long
-    navStartX = FW - LM - navBtnW * 4 - 45     ' å³å¯¹é½
+    navStartX = FW - LM - navBtnW * 4 - 45     ' ÓÒ¶ÔÆë
     
-    ' << ä¸Šåå¹´
+    ' << ÉÏÊ®Äê
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             navStartX, yNav, navBtnW, hNav)
     ctl.Name = "cmdPrevDecade"
@@ -798,7 +919,7 @@ Public Sub CreateYearMonthPickerForm()
     ctl.FontName = "Segoe UI"
     ctl.OnClick = "=YMPicker_PrevDecade()"
     
-    ' < ä¸Šä¸€å¹´
+    ' < ÉÏÒ»Äê
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             navStartX + navBtnW, yNav, navBtnW, hNav)
     ctl.Name = "cmdYMPrevYear"
@@ -807,7 +928,7 @@ Public Sub CreateYearMonthPickerForm()
     ctl.FontName = "Segoe UI"
     ctl.OnClick = "=YMPicker_PrevYear()"
     
-    ' > ä¸‹ä¸€å¹´
+    ' > ÏÂÒ»Äê
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             navStartX + navBtnW * 2, yNav, navBtnW, hNav)
     ctl.Name = "cmdYMNextYear"
@@ -816,7 +937,7 @@ Public Sub CreateYearMonthPickerForm()
     ctl.FontName = "Segoe UI"
     ctl.OnClick = "=YMPicker_NextYear()"
     
-    ' >> ä¸‹åå¹´
+    ' >> ÏÂÊ®Äê
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             navStartX + navBtnW * 3, yNav, navBtnW, hNav)
     ctl.Name = "cmdNextDecade"
@@ -826,7 +947,7 @@ Public Sub CreateYearMonthPickerForm()
     ctl.OnClick = "=YMPicker_NextDecade()"
     
     ' ========================================
-    ' 3. 12ä¸ªæœˆä»½æ ¼å­ (3è¡Œ Ã— 4åˆ— æ ‡ç­¾)
+    ' 3. 12¸öÔÂ·İ¸ñ×Ó (3ĞĞ ¡Á 4ÁĞ ±êÇ©)
     ' ========================================
     Dim iRow As Integer, iCol As Integer, iMonth As Integer
     iMonth = 0
@@ -840,13 +961,13 @@ Public Sub CreateYearMonthPickerForm()
                                     yGrid + iRow * (MH + MG), _
                                     MW, MH)
             ctl.Name = "lblM" & Format(iMonth, "00")
-            ctl.Caption = Format(iMonth, "00") & "æœˆ"
-            ctl.TextAlign = 2           ' å±…ä¸­
-            ctl.BackStyle = 1           ' ä¸é€æ˜
+            ctl.Caption = Format(iMonth, "00") & "ÔÂ"
+            ctl.TextAlign = 2           ' ¾ÓÖĞ
+            ctl.BackStyle = 1           ' ²»Í¸Ã÷
             ctl.BackColor = CLR_WHITE
             ctl.ForeColor = CLR_BLACK
             ctl.FontSize = 10
-            ctl.FontName = "Segoe UI"
+            ctl.FontName = "Microsoft YaHei"
             ctl.BorderStyle = 0
             
             ctl.OnClick = "=YMPicker_MonthClick(" & iMonth & ")"
@@ -856,47 +977,54 @@ Public Sub CreateYearMonthPickerForm()
     Next iRow
     
     ' ========================================
-    ' 4. åº•éƒ¨æŒ‰é’®
+    ' 4. µ×²¿°´Å¥
     ' ========================================
     
-    ' æ¸…é™¤
+    ' Çå³ı
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             LM + 45, yBtn, 960, hBtn)
     ctl.Name = "cmdYMClear"
-    ctl.Caption = "æ¸…é™¤"
+    ctl.Caption = "Çå³ı"
     ctl.FontSize = 9
     ctl.FontName = "Segoe UI"
     ctl.OnClick = "=YMPicker_Clear()"
     
-    ' æœ¬æœˆ
+    ' ±¾ÔÂ
     Set ctl = CreateControl(sTmp, acCommandButton, acDetail, "", "", _
                             FW - LM - 960 - 45, yBtn, 960, hBtn)
     ctl.Name = "cmdThisMonth"
-    ctl.Caption = "æœ¬æœˆ"
+    ctl.Caption = "±¾ÔÂ"
     ctl.FontSize = 9
     ctl.FontName = "Segoe UI"
     ctl.OnClick = "=YMPicker_GoThisMonth()"
     
     ' ========================================
-    ' ä¿å­˜å¹¶é‡å‘½åçª—ä½“
+    ' ±£´æ²¢ÖØÃüÃû´°Ìå
     ' ========================================
     DoCmd.Close acForm, sTmp, acSaveYes
     DoCmd.Rename YM_FORM_NAME, acForm, sTmp
     
-    MsgBox "å¹´æœˆé€‰æ‹©å™¨çª—ä½“ [" & YM_FORM_NAME & "] åˆ›å»ºæˆåŠŸï¼" & vbCrLf & vbCrLf & _
-           "â•â•â• ä½¿ç”¨æ–¹æ³• â•â•â•" & vbCrLf & vbCrLf & _
+    If Not silent Then
+        MsgBox "ÄêÔÂÑ¡ÔñÆ÷´°Ìå [" & YM_FORM_NAME & "] ´´½¨³É¹¦£¡" & vbCrLf & vbCrLf & _
+           "¨T¨T¨T Ê¹ÓÃ·½·¨ ¨T¨T¨T" & vbCrLf & vbCrLf & _
            "  Dim dt As Variant" & vbCrLf & _
            "  dt = ShowYearMonthPicker()" & vbCrLf & vbCrLf & _
-           "ç»‘å®šæ–‡æœ¬æ¡†:" & vbCrLf & _
+           "°ó¶¨ÎÄ±¾¿ò:" & vbCrLf & _
            "  PickYearMonthFor Me.txtMonth" & vbCrLf & _
            "  PickYearMonthFor Me.txtMonth, ""yyyy-mm""", _
-           vbInformation, "åˆ›å»ºæˆåŠŸ"
+           vbInformation, "´´½¨³É¹¦"
+    End If
     
     Exit Sub
 
 ErrHandler:
-    MsgBox "åˆ›å»ºçª—ä½“å¤±è´¥: " & Err.Description & vbCrLf & _
-           "é”™è¯¯å·: " & Err.Number, vbCritical, "åˆ›å»ºå¤±è´¥"
+    Dim failureNumber As Long, failureDescription As String
+    failureNumber = Err.Number
+    failureDescription = Err.Description
     On Error Resume Next
     DoCmd.Close acForm, sTmp, acSaveNo
+    On Error GoTo 0
+    If silent Then Err.Raise failureNumber, "CreateYearMonthPickerForm", failureDescription
+    MsgBox "´´½¨´°ÌåÊ§°Ü: " & failureDescription & vbCrLf & _
+           "´íÎóºÅ: " & failureNumber, vbCritical, "´´½¨Ê§°Ü"
 End Sub

@@ -1,8 +1,8 @@
 # Access DatePicker / Access 日期选择器
 
-> 纯 VBA 实现的 Microsoft Access 日期选择器和年月选择器 — 零外部依赖，一键部署。
+> 纯 VBA 实现的 Microsoft Access 日期、年月、日期范围、周、时间和时间范围选择器，零外部依赖，一键部署。
 >
-> A pure VBA date picker and year-month picker for Microsoft Access — zero external dependencies, one-click deployment.
+> Pure VBA date, year-month, date-range, week, time and date-time range pickers for Microsoft Access, with zero external dependencies and one-click deployment.
 
 [中文](#-功能特性) | [English](#-features)
 
@@ -16,12 +16,35 @@
 
 **日期选择器：**
 
-![alt text](image.png)
-![alt text](image-1.png)
+![日期选择器](1.png)
+
+**日期时间选择器：**
+
+![日期时间选择器](2.png)
+
+**年份选择器：**
+
+![年份选择器](3.png)
 
 **年月选择器：**
 
-![alt text](image-2.png)
+![年月选择器](4.png)
+
+**周选择器：**
+
+![周选择器](5.png)
+
+**时间选择器：**
+
+![时间选择器](6.png)
+
+**日期范围选择器：**
+
+![日期范围选择器](7.png)
+
+**时间范围选择器：**
+
+![时间范围选择器](8.png)
 
 ---
 
@@ -30,7 +53,12 @@
 - **纯 VBA + Access 窗体实现** — 无 ActiveX，无 WebBrowser 控件，无外部库
 - **日历网格** + 上/下月导航
 - **时间选择器**（小时 & 分钟列表） — 可显示或隐藏
+- **年份选择器** — 12 年网格，单击回写四位年份，可快速翻页及选择今年
 - **年月选择器** — 十年/年份导航 + 4×3 月份网格
+- **日期范围选择器** — 双月联动日历、起止日期高亮、悬停预览，点击两次完成选择
+- **周选择器**：单月日历整周高亮，单击任意一天选择该周，显示如 `2026-40周`
+- **独立时间选择器**：时、分、秒三列选择，预览后确认，支持纯时间 Date 或格式化文本回写
+- **时间范围选择器**：双月日历与起止时分秒，选完日期后仍可调整时间，确认后回写完整日期时间
 - **自动创建窗体** — 一条命令即可，无需手动设计
 - **表达式事件绑定** — 窗体代码模块为零
 - **下拉模式** — 可绑定任意文本框作为非模态弹出
@@ -49,12 +77,16 @@
 
 ## 🚀 快速开始
 
+直接体验：打开 [DatePicker.accdb](DatePicker.accdb) 的 `Demo` 窗体。示例按“日期 → 日期时间 → 年份 → 月份 → 周 → 时间 → 日期范围 → 时间范围”排列，输入框对齐，Tab 顺序与显示顺序一致。
+
+单击“年份”输入框可选择独立年份，回写如 `2026` 的四位年份文本；单击“月份”可打开四列三行的中文月份面板，切换年份后单击月份即回写 `yyyy-mm`。两个入口共用 [Module_YearMonthPicker.bas](Module_YearMonthPicker.bas) 和同一窗体，不需要额外模块。
+
 ### 步骤 1：导入模块
 
 1. 打开你的 Access 数据库（`.accdb` / `.mdb`）
 2. 按 **Alt + F11** 打开 VBA 编辑器
 3. 菜单选择 **文件 → 导入文件**
-4. 选择 `Module_DatePicker.bas`（和/或 `Module_YearMonthPicker.bas`）
+4. 按需选择 `Module_DatePicker.bas`、`Module_YearMonthPicker.bas`、`Module_DateRangePicker.bas`、`Module_WeekPicker.bas`、`Module_TimePicker.bas` 或 `Module_DateTimeRangePicker.bas`
 5. 点击 **打开** 完成导入
 
 ### 步骤 2：创建选择器窗体
@@ -75,6 +107,38 @@ CreateDatePickerForm
 ```vb
 CreateYearMonthPickerForm
 ```
+
+日期范围选择器需要导入独立模块 `Module_DateRangePicker.bas`，然后执行：
+
+```vb
+CreateDateRangePickerForm
+```
+
+该模块使用 Windows 中文 ANSI（CP936）编码，可直接导入 VBA 编辑器。示例数据库已部署范围窗体，可在 `Demo` 窗体中单击“日期范围”输入框试用。
+
+周选择器导入 `Module_WeekPicker.bas`（CP936 编码）后执行：
+
+```vb
+CreateWeekPickerForm
+```
+
+示例数据库的 `Demo` 窗体也已加入“周”输入框，单击即可试用。
+
+独立时间选择器导入 `Module_TimePicker.bas`（CP936 编码）后执行：
+
+```vb
+CreateTimePickerForm
+```
+
+示例数据库的 `Demo` 窗体提供“时间”输入框，支持如 `12:25:30` 的独立时间选择。
+
+时间范围选择器导入独立的 `Module_DateTimeRangePicker.bas`（GBK/CP936 编码）后执行：
+
+```vb
+CreateDateTimeRangePickerForm
+```
+
+时间范围演示已合并到 [DatePicker.accdb](DatePicker.accdb) 的 `Demo` 窗体中，单击“时间范围”输入框即可选择起止日期和时分秒，不依赖其他选择器模块。
 
 ### 步骤 3：调用选择器
 
@@ -116,6 +180,22 @@ Private Sub cmdPickDate_Click()
 End Sub
 ```
 
+#### 年份选择器
+
+```vb
+Private Sub txtYear_Click()
+    PickYearFor Me.txtYear
+End Sub
+```
+
+也可以在文本框的“单击”事件中填写表达式：
+
+```vb
+=PickYearForCtl("frmOrder","txtYear")
+```
+
+默认回写四位年份文本，支持 `PickYearFor Me.txtYear, "yyyy年"` 自定义格式。清除写入 Null，取消保留原值。
+
 #### 年月选择器
 
 ```vb
@@ -146,13 +226,127 @@ End Sub
 =PickYearMonthForCtl("frmOrder","txtMonth","yyyy-mm")
 ```
 
+#### 日期范围选择器
+
+```vb
+' 一个文本框显示完整范围，如 2026-10-01 ~ 2026-11-30
+Private Sub txtRange_Click()
+    PickDateRangeFor Me.txtRange
+End Sub
+```
+
+```vb
+' 两个日期字段分别回写真正的 Date 值
+PickDateRangeFor Me.txtStart, Me.txtEnd
+
+' 或者在 Form_Load 中绑定双击事件
+AttachDateRangePicker Me, "txtStart", "txtEnd"
+```
+
+```vb
+' 模态选择，返回含两个 Date 值的数组；取消或清除返回 Null
+Dim dates As Variant
+dates = ShowDateRangePicker(#10/1/2026#, #11/30/2026#)
+If Not IsNull(dates) Then
+    Me.txtStart = dates(0)
+    Me.txtEnd = dates(1)
+End If
+```
+
+第一次点击选起点，第二次点击选终点并自动确认；可反向选择、选择同一天或通过导航选择跨月跨年范围。取消、Esc 或下拉模式点击外部不修改原值；“清除”会清空绑定的文本框。单框请使用未绑定文本框或文本字段，不可绑定单个日期字段。
+
+#### 周选择器
+
+```vb
+PickWeekFor Me.txtWeek
+PickWeekFor Me.txtWeekStart, True
+AttachWeekPicker Me, "txtWeek"
+```
+
+默认回写 `yyyy-ww周` 文本，请使用未绑定文本框或文本字段；第二参数为 `True` 时回写该周周日的 Date 值，可绑定日期字段。也可直接在文本框的单击事件填写：
+
+```text
+=PickWeekForCtl("Demo","txtWeek")
+```
+
+周规则为周日到周六，包含 1 月 1 日的一周属于新年第 1 周，不采用 ISO 周编号。例如 `2026-40周` 对应 2026-09-27 至 2026-10-03；2020-12-27 至 2021-01-02 为 `2021-01周`。鼠标移入预览整周，单击任意日期立即确认；取消、Esc 或点击外部不修改原值。
+
+```vb
+Dim weekStart As Variant
+weekStart = ShowWeekPicker(#9/30/2026#)
+If Not IsNull(weekStart) Then
+    Me.txtWeek = WeekPicker_WeekText(weekStart)
+    Me.txtStart = weekStart
+    Me.txtEnd = WeekPicker_WeekEnd(weekStart)
+End If
+```
+
+#### 独立时间选择器
+
+```vb
+PickTimeFor Me.txtTime
+PickTimeFor Me.txtTimeText, "hh:nn:ss"
+AttachTimePicker Me, "txtTime"
+```
+
+默认写入仅含时间部分的 Date，适合日期/时间字段；将文本框的“格式”设为 `hh:nn:ss` 即可显示秒。指定 `sFormat` 时写入字符串，应使用文本字段或未绑定文本框。已有日期时间只取其时间，确认时不保留日期部分；不要用它直接修改需要保留日期的字段。
+
+三列分别选择 00–23 时、00–59 分和秒，只有“确定”或 Enter 才回写；“现在”更新预览，“取消”、Esc 或点击外部不修改原值，“清除”写入 Null。单击事件也可直接填写：
+
+```text
+=PickTimeForCtl("Demo","txtTime")
+```
+
+```vb
+Dim pickedTime As Variant
+pickedTime = ShowTimePicker(TimeSerial(12, 25, 30))
+If Not IsNull(pickedTime) Then
+    Me.txtTime = pickedTime
+End If
+```
+
+#### 时间范围选择器
+
+```vb
+' 单框默认显示 2026-10-07 10:10:36 ~ 2026-11-18 10:11:37
+PickDateTimeRangeFor Me.txtRange
+
+' 双框分别写入完整 Date，可绑定两个日期/时间字段
+PickDateTimeRangeFor Me.txtStart, Me.txtEnd
+AttachDateTimeRangePicker Me, "txtStart", "txtEnd"
+```
+
+单框请使用文本字段或未绑定文本框；双框显示格式可设为 `yyyy-mm-dd hh:nn:ss`。两次选日后不会自动提交，可继续调整顶部日期及两端时分秒，点“确定”或按 Enter 才回写，并按完整日期时间先后排序。“取消”、Esc 或下拉模式点击外部保留原值，“清除”写入 Null。未选日期时默认为开始 `00:00:00`、结束 `23:59:59`。
+
+```text
+=PickDateTimeRangeForCtl("Demo","txtDateTimeRange")
+```
+
+```vb
+Dim period As Variant
+period = ShowDateTimeRangePicker(#10/7/2026 10:10:36#, #11/18/2026 10:11:37#)
+If Not IsNull(period) Then
+    Me.txtStart = period(0)
+    Me.txtEnd = period(1)
+End If
+```
+
 ## 📁 项目结构
 
 ```
 access-datepicker/
 ├── Module_DatePicker.bas       # 日期选择器 VBA 模块（日期+时间选择）
 ├── Module_YearMonthPicker.bas  # 年月选择器 VBA 模块（年份+月份选择）
+├── Module_DateRangePicker.bas  # 日期范围选择器 VBA 模块（双月起止日期选择）
+├── Module_WeekPicker.bas       # 周选择器 VBA 模块（周日到周六整周选择）
+├── Module_TimePicker.bas       # 独立时间选择器 VBA 模块（时、分、秒）
+├── Module_DateTimeRangePicker.bas # 时间范围选择器（起止日期及时间，精确到秒）
 ├── DatePicker.accdb            # 示例 Access 数据库（含已部署的选择器窗体）
+├── tests/Test-YearMonthPicker.ps1 # 年份、月份选择与 Demo 排列 Access COM 回归测试
+├── tests/Test-DateRangePicker.ps1 # 本机 Access COM 回归测试
+├── tests/Test-WeekPicker.ps1    # 周选择器 Access COM 回归测试
+├── tests/Test-TimePicker.ps1    # 时间选择器 Access COM 回归测试
+├── tests/Test-DateTimeRangePicker.ps1 # 时间范围 Access COM 回归测试
 ├── 使用说明.md                  # 详细中文使用说明文档
 └── README.md                   # 项目说明文档
 ```
@@ -165,6 +359,10 @@ access-datepicker/
 |------|------|--------|
 | `Module_DatePicker.bas` | 日期+时间选择器 | `frmDatePicker` |
 | `Module_YearMonthPicker.bas` | 年月选择器 | `frmYearMonthPicker` |
+| `Module_DateRangePicker.bas` | 日期范围选择器 | `frmDateRangePicker` |
+| `Module_WeekPicker.bas` | 周选择器 | `frmWeekPicker` |
+| `Module_TimePicker.bas` | 独立时间选择器 | `frmTimePicker` |
+| `Module_DateTimeRangePicker.bas` | 时间范围选择器 | `frmDateTimeRangePicker` |
 
 ### 公开 API
 
@@ -199,6 +397,54 @@ access-datepicker/
 | `frm` | Form | 是 | — | 窗体对象 |
 | `sCtlName` | String | 是 | — | 控件名称 |
 | `sFormat` | String | 否 | `""` | 输出格式 |
+
+#### 日期范围 API
+
+| API | 说明 |
+| --- | --- |
+| `ShowDateRangePicker([dtStart], [dtEnd])` | 返回 `Array(开始日期, 结束日期)`，取消/清除返回 `Null`；未指定日期时显示当前月和下月 |
+| `PickDateRangeFor(ctlStart, [ctlEnd], [sFormat])` | 单框整段显示，默认 `yyyy-mm-dd ~ yyyy-mm-dd`；双框默认分别写入 Date；提供格式时写入格式化字符串 |
+| `PickDateRangeForCtl(sFormName, sStartCtlName, [sEndCtlName], [sFormat])` | 供控件单击/双击事件表达式调用 |
+| `AttachDateRangePicker(frm, sStartCtlName, [sEndCtlName], [sFormat])` | 为单个范围文本框或一对起止文本框绑定双击事件 |
+
+本机安装 Access 后，可在 PowerShell 运行 `& .\tests\Test-DateRangePicker.ps1` 验证；测试使用临时数据库副本，不修改示例数据库。
+
+#### 周 API
+
+| API | 说明 |
+| --- | --- |
+| `ShowWeekPicker([dtDefault])` | 默认值可为日期或周标签；返回所选周日的 Date，取消/清除返回 Null |
+| `PickWeekFor(ctl, [bStoreDate])` | 非模态下拉；默认写周标签，`bStoreDate=True` 时写周日的 Date |
+| `PickWeekForCtl(sFormName, sCtlName, [bStoreDate])` | 供控件事件表达式调用 |
+| `AttachWeekPicker(frm, sCtlName, [bStoreDate])` | 绑定文本框双击事件 |
+| `WeekPicker_WeekStart(value)` / `WeekPicker_WeekEnd(value)` | 从日期或周标签取得周日/周六；非法输入返回 Null |
+| `WeekPicker_WeekText(value)` | 将日期或周标签规范化为 `yyyy-ww周`，非法输入返回空字符串 |
+
+周选择器回归测试：`& .\tests\Test-WeekPicker.ps1`，同样只操作临时副本。
+
+#### 时间 API
+
+| API | 说明 |
+| --- | --- |
+| `ShowTimePicker([dtDefault])` | 返回纯时间 Date，取消/清除返回 Null；空值或非法默认值使用当前时间 |
+| `PickTimeFor(ctl, [sFormat])` | 非模态下拉；默认写 Date，指定格式时写字符串 |
+| `PickTimeForCtl(sFormName, sCtlName, [sFormat])` | 供控件单击/双击事件表达式调用 |
+| `AttachTimePicker(frm, sCtlName, [sFormat])` | 绑定文本框双击事件 |
+| `CreateTimePickerForm([silent])` | 创建或重建 `frmTimePicker`；重建会覆盖该窗体的手工设计修改 |
+
+时间选择器回归测试：`& .\tests\Test-TimePicker.ps1`，仅操作临时副本。
+
+#### 时间范围 API
+
+| API | 说明 |
+| --- | --- |
+| `ShowDateTimeRangePicker([dtStart], [dtEnd])` | 返回完整日期时间的 `Array(Date, Date)`，取消/清除返回 Null；空值或非法值视为未选日期 |
+| `PickDateTimeRangeFor(ctlStart, [ctlEnd], [sFormat])` | 单框默认写 `yyyy-mm-dd hh:nn:ss ~ yyyy-mm-dd hh:nn:ss`；双框默认写 Date；指定格式时写字符串 |
+| `PickDateTimeRangeForCtl(sFormName, sStartCtlName, [sEndCtlName], [sFormat])` | 供控件事件表达式调用 |
+| `AttachDateTimeRangePicker(frm, sStartCtlName, [sEndCtlName], [sFormat])` | 为单框或两个起止框绑定双击事件 |
+| `CreateDateTimeRangePickerForm([silent])` | 创建或重建 `frmDateTimeRangePicker`，重建覆盖该窗体的手工设计修改 |
+
+时间范围回归测试：`& .\tests\Test-DateTimeRangePicker.ps1`，仅操作临时数据库副本。
 
 ### 自定义修改
 
@@ -237,7 +483,9 @@ Dim CH As Long: CH = 340   ' 格子高度
 - [x] 下拉模式绑定文本框
 - [x] 32 位 & 64 位兼容
 - [ ] 多语言支持（英文 / 日文等）
-- [ ] 日期范围选择（起止日期）
+- [x] 日期范围选择（双月日历 + 起止日期）
+- [x] 周选择（单月整周高亮 + 周编号）
+- [x] 时间范围（双月日历 + 起止日期及时分秒）
 - [ ] 自定义主题配色方案
 - [ ] 周起始日设置（周一 / 周日）
 
@@ -290,12 +538,35 @@ Dim CH As Long: CH = 340   ' 格子高度
 
 **Date Picker:**
 
-![alt text](image.png)
-![alt text](image-1.png)
+![Date Picker](1.png)
+
+**Date-Time Picker:**
+
+![Date-Time Picker](2.png)
+
+**Year Picker:**
+
+![Year Picker](3.png)
 
 **Year-Month Picker:**
 
-![alt text](image-2.png)
+![Year-Month Picker](4.png)
+
+**Week Picker:**
+
+![Week Picker](5.png)
+
+**Time Picker:**
+
+![Time Picker](6.png)
+
+**Date-Range Picker:**
+
+![Date-Range Picker](7.png)
+
+**Date-Time Range Picker:**
+
+![Date-Time Range Picker](8.png)
 
 ## ✨ Features
 
@@ -303,6 +574,10 @@ Dim CH As Long: CH = 340   ' 格子高度
 - **Calendar grid** with previous/next month navigation
 - **Time picker** (hour & minute lists) — can be shown or hidden
 - **Year-Month picker** with decade/year navigation and 4×3 month grid
+- **Date-range picker** with linked dual-month calendars, hover preview and two-click selection
+- **Week picker** with full-row hover/selection and labels such as `2026-40周`
+- **Standalone time picker** with hour, minute and second lists, preview and explicit confirmation
+- **Date-time range picker** with dual-month calendars, start/end times to the second and explicit confirmation
 - **Auto-create forms** via a single command — no manual design needed
 - **Event binding via expressions** — zero form code module required
 - **Dropdown mode** — attach to any text box as a non-modal popup
@@ -326,7 +601,7 @@ Dim CH As Long: CH = 340   ' 格子高度
 1. Open your Access database (`.accdb` / `.mdb`)
 2. Press **Alt + F11** to open the VBA Editor
 3. Go to **File → Import File**
-4. Select `Module_DatePicker.bas` (and/or `Module_YearMonthPicker.bas`)
+4. Select `Module_DatePicker.bas`, `Module_YearMonthPicker.bas`, `Module_DateRangePicker.bas`, `Module_WeekPicker.bas`, `Module_TimePicker.bas`, or `Module_DateTimeRangePicker.bas` as needed
 5. Click **Open**
 
 ### Step 2: Create the Picker Form
@@ -347,6 +622,32 @@ For the Year-Month Picker, also run:
 ```vb
 CreateYearMonthPickerForm
 ```
+
+For the Date-Range Picker, import the standalone CP936-encoded `Module_DateRangePicker.bas` and run:
+
+```vb
+CreateDateRangePickerForm
+```
+
+For the Week Picker, import the standalone CP936-encoded `Module_WeekPicker.bas` and run:
+
+```vb
+CreateWeekPickerForm
+```
+
+For the standalone Time Picker, import the CP936-encoded `Module_TimePicker.bas` and run:
+
+```vb
+CreateTimePickerForm
+```
+
+For the Date-Time Range Picker, import the standalone GBK/CP936-encoded `Module_DateTimeRangePicker.bas` and run:
+
+```vb
+CreateDateTimeRangePickerForm
+```
+
+Call `PickDateTimeRangeFor Me.txtRange` for combined text or `PickDateTimeRangeFor Me.txtStart, Me.txtEnd` for two Date values. Both dates and times remain editable until confirmation. Open the Demo form in [DatePicker.accdb](DatePicker.accdb) to try it. Its rows are ordered as date, date-time, year, month, week, time, date range and date-time range.
 
 ### Step 3: Use the Picker
 
@@ -388,6 +689,10 @@ Private Sub cmdPickDate_Click()
 End Sub
 ```
 
+#### Year Picker
+
+Call `PickYearFor Me.txtYear` or set the text box's On Click property to `=PickYearForCtl("frmOrder","txtYear")`. It writes a four-digit year string, clears to Null, and preserves the original value on cancel. This mode reuses the Year-Month module and form.
+
 #### Year-Month Picker
 
 ```vb
@@ -419,12 +724,65 @@ End Sub
 =PickYearMonthForCtl("frmOrder","txtMonth","yyyy-mm")
 ```
 
+#### Date-Range Picker
+
+```vb
+' Single text box: yyyy-mm-dd ~ yyyy-mm-dd
+PickDateRangeFor Me.txtRange
+
+' Two date fields: real Date values, not formatted strings
+PickDateRangeFor Me.txtStart, Me.txtEnd
+
+' Modal result: Array(startDate, endDate), or Null on cancel/clear
+Dim dates As Variant
+dates = ShowDateRangePicker(#10/1/2026#, #11/30/2026#)
+If Not IsNull(dates) Then
+    Me.txtStart = dates(0)
+    Me.txtEnd = dates(1)
+End If
+```
+
+Click the start date, then the end date to confirm. Reverse order, same-day and cross-year ranges are supported. Cancel, Escape and clicking outside the dropdown leave inputs unchanged; Clear resets them. Single-box ranges require a text field or an unbound text box. The sample database includes a date-range input on `Demo`.
+
+#### Week Picker
+
+```vb
+PickWeekFor Me.txtWeek
+PickWeekFor Me.txtWeekStart, True
+AttachWeekPicker Me, "txtWeek"
+```
+
+The default output is a `yyyy-ww周` label and requires a text field or unbound text box. Pass `True` to store a real Date for the week's Sunday. Weeks run Sunday through Saturday; the week containing January 1 is week 1 of the new year, not ISO numbering. For example, `2026-40周` spans September 27 to October 3, 2026. Click any day to confirm the whole week. Cancel, Escape and clicking outside preserve the previous value; Clear writes Null.
+
+`ShowWeekPicker([dateOrWeekLabel])` returns Sunday's Date, or Null on cancel/clear. `WeekPicker_WeekStart`, `WeekPicker_WeekEnd` and `WeekPicker_WeekText` convert dates or labels to week boundaries and display text. The sample `Demo` includes a week input. Run `& .\tests\Test-WeekPicker.ps1` for Access regression tests on a temporary database copy.
+
+#### Standalone Time Picker
+
+```vb
+PickTimeFor Me.txtTime
+PickTimeFor Me.txtTimeText, "hh:nn:ss"
+AttachTimePicker Me, "txtTime"
+```
+
+The default output is a time-only Date. Set the text box's Format to `hh:nn:ss` to display seconds. Passing `sFormat` writes a string instead; use a text field or an unbound text box. Existing date/time values retain only their time portion, including seconds. Confirmation does not preserve the date portion, so do not use this directly on fields whose dates must remain unchanged.
+
+Hours run from 00 to 23; minutes and seconds from 00 to 59. Selection only updates the preview. OK or Enter writes the result; Now updates the preview; Cancel, Escape and clicking outside leave inputs unchanged; Clear writes Null. The sample `Demo` includes a time input with this click expression:
+
+```text
+=PickTimeForCtl("Demo","txtTime")
+```
+
+`ShowTimePicker([dtDefault])` returns a time-only Date, or Null on cancel/clear. Missing, Null or invalid defaults use the current time. Run `& .\tests\Test-TimePicker.ps1` for regression tests on a temporary copy.
+
 ## 📁 Project Structure
 
 ```
 access-datepicker/
 ├── Module_DatePicker.bas       # Date picker VBA module (date + time selection)
 ├── Module_YearMonthPicker.bas  # Year-month picker VBA module (year + month selection)
+├── Module_DateRangePicker.bas  # Date-range VBA module (dual-month calendar)
+├── Module_WeekPicker.bas       # Week picker VBA module (Sunday through Saturday)
+├── Module_TimePicker.bas       # Standalone time picker VBA module (hour, minute, second)
 ├── DatePicker.accdb            # Sample Access database (with deployed picker forms)
 ├── 使用说明.md                  # Detailed usage guide (Chinese)
 └── README.md                   # Project documentation
@@ -438,6 +796,9 @@ access-datepicker/
 |--------|---------|-----------|
 | `Module_DatePicker.bas` | Date + time picker | `frmDatePicker` |
 | `Module_YearMonthPicker.bas` | Year-month picker | `frmYearMonthPicker` |
+| `Module_DateRangePicker.bas` | Date-range picker | `frmDateRangePicker` |
+| `Module_WeekPicker.bas` | Week picker | `frmWeekPicker` |
+| `Module_TimePicker.bas` | Standalone time picker | `frmTimePicker` |
 
 ### Public API
 
