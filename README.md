@@ -342,7 +342,6 @@ access-datepicker/
 ├── Module_TimePicker.bas       # 独立时间选择器 VBA 模块（时、分、秒）
 ├── Module_DateTimeRangePicker.bas # 时间范围选择器（起止日期及时间，精确到秒）
 ├── DatePicker.accdb            # 示例 Access 数据库（含已部署的选择器窗体）
-├── 使用说明.md                  # 详细中文使用说明文档
 └── README.md                   # 项目说明文档
 ```
 
@@ -771,7 +770,6 @@ access-datepicker/
 ├── Module_WeekPicker.bas       # Week picker VBA module (Sunday through Saturday)
 ├── Module_TimePicker.bas       # Standalone time picker VBA module (hour, minute, second)
 ├── DatePicker.accdb            # Sample Access database (with deployed picker forms)
-├── 使用说明.md                  # Detailed usage guide (Chinese)
 └── README.md                   # Project documentation
 ```
 
