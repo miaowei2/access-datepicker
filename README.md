@@ -342,11 +342,6 @@ access-datepicker/
 ├── Module_TimePicker.bas       # 独立时间选择器 VBA 模块（时、分、秒）
 ├── Module_DateTimeRangePicker.bas # 时间范围选择器（起止日期及时间，精确到秒）
 ├── DatePicker.accdb            # 示例 Access 数据库（含已部署的选择器窗体）
-├── tests/Test-YearMonthPicker.ps1 # 年份、月份选择与 Demo 排列 Access COM 回归测试
-├── tests/Test-DateRangePicker.ps1 # 本机 Access COM 回归测试
-├── tests/Test-WeekPicker.ps1    # 周选择器 Access COM 回归测试
-├── tests/Test-TimePicker.ps1    # 时间选择器 Access COM 回归测试
-├── tests/Test-DateTimeRangePicker.ps1 # 时间范围 Access COM 回归测试
 ├── 使用说明.md                  # 详细中文使用说明文档
 └── README.md                   # 项目说明文档
 ```
@@ -407,8 +402,6 @@ access-datepicker/
 | `PickDateRangeForCtl(sFormName, sStartCtlName, [sEndCtlName], [sFormat])` | 供控件单击/双击事件表达式调用 |
 | `AttachDateRangePicker(frm, sStartCtlName, [sEndCtlName], [sFormat])` | 为单个范围文本框或一对起止文本框绑定双击事件 |
 
-本机安装 Access 后，可在 PowerShell 运行 `& .\tests\Test-DateRangePicker.ps1` 验证；测试使用临时数据库副本，不修改示例数据库。
-
 #### 周 API
 
 | API | 说明 |
@@ -420,8 +413,6 @@ access-datepicker/
 | `WeekPicker_WeekStart(value)` / `WeekPicker_WeekEnd(value)` | 从日期或周标签取得周日/周六；非法输入返回 Null |
 | `WeekPicker_WeekText(value)` | 将日期或周标签规范化为 `yyyy-ww周`，非法输入返回空字符串 |
 
-周选择器回归测试：`& .\tests\Test-WeekPicker.ps1`，同样只操作临时副本。
-
 #### 时间 API
 
 | API | 说明 |
@@ -432,8 +423,6 @@ access-datepicker/
 | `AttachTimePicker(frm, sCtlName, [sFormat])` | 绑定文本框双击事件 |
 | `CreateTimePickerForm([silent])` | 创建或重建 `frmTimePicker`；重建会覆盖该窗体的手工设计修改 |
 
-时间选择器回归测试：`& .\tests\Test-TimePicker.ps1`，仅操作临时副本。
-
 #### 时间范围 API
 
 | API | 说明 |
@@ -443,8 +432,6 @@ access-datepicker/
 | `PickDateTimeRangeForCtl(sFormName, sStartCtlName, [sEndCtlName], [sFormat])` | 供控件事件表达式调用 |
 | `AttachDateTimeRangePicker(frm, sStartCtlName, [sEndCtlName], [sFormat])` | 为单框或两个起止框绑定双击事件 |
 | `CreateDateTimeRangePickerForm([silent])` | 创建或重建 `frmDateTimeRangePicker`，重建覆盖该窗体的手工设计修改 |
-
-时间范围回归测试：`& .\tests\Test-DateTimeRangePicker.ps1`，仅操作临时数据库副本。
 
 ### 自定义修改
 
@@ -754,7 +741,7 @@ AttachWeekPicker Me, "txtWeek"
 
 The default output is a `yyyy-ww周` label and requires a text field or unbound text box. Pass `True` to store a real Date for the week's Sunday. Weeks run Sunday through Saturday; the week containing January 1 is week 1 of the new year, not ISO numbering. For example, `2026-40周` spans September 27 to October 3, 2026. Click any day to confirm the whole week. Cancel, Escape and clicking outside preserve the previous value; Clear writes Null.
 
-`ShowWeekPicker([dateOrWeekLabel])` returns Sunday's Date, or Null on cancel/clear. `WeekPicker_WeekStart`, `WeekPicker_WeekEnd` and `WeekPicker_WeekText` convert dates or labels to week boundaries and display text. The sample `Demo` includes a week input. Run `& .\tests\Test-WeekPicker.ps1` for Access regression tests on a temporary database copy.
+`ShowWeekPicker([dateOrWeekLabel])` returns Sunday's Date, or Null on cancel/clear. `WeekPicker_WeekStart`, `WeekPicker_WeekEnd` and `WeekPicker_WeekText` convert dates or labels to week boundaries and display text. The sample `Demo` includes a week input.
 
 #### Standalone Time Picker
 
@@ -772,7 +759,7 @@ Hours run from 00 to 23; minutes and seconds from 00 to 59. Selection only updat
 =PickTimeForCtl("Demo","txtTime")
 ```
 
-`ShowTimePicker([dtDefault])` returns a time-only Date, or Null on cancel/clear. Missing, Null or invalid defaults use the current time. Run `& .\tests\Test-TimePicker.ps1` for regression tests on a temporary copy.
+`ShowTimePicker([dtDefault])` returns a time-only Date, or Null on cancel/clear. Missing, Null or invalid defaults use the current time.
 
 ## 📁 Project Structure
 
